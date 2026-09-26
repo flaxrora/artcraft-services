@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Share previews must work from the raw <head>, even for an unknown crawler
+  // or curl. Wait for generateMetadata instead of streaming it into the body.
+  // Media lookups have a five-second timeout; static marketing pages do not
+  // perform that lookup. https://nextjs.org/docs/app/api-reference/config/next-config-js/htmlLimitedBots
+  htmlLimitedBots: /.*/,
   // Pin the project root: the repo has lockfiles both here and in the Nx
   // workspace above, and letting Next guess picks the wrong one (breaks
   // output file tracing on serverless deploys).
