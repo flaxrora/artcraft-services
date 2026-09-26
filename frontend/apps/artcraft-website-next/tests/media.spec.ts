@@ -2,6 +2,7 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
+import { wav } from "./fixtures/audio";
 import { corsMediaUrl, mediaKind, safeMediaUrl, type SharedMedia } from "../src/lib/media";
 
 const API = "http://127.0.0.1:4203";
@@ -33,21 +34,6 @@ test("legacy query share links redirect to the canonical media page", async ({ p
   await page.goto("/media?media=m_fixture_image");
   await expect(page).toHaveURL((url) => url.pathname === "/media/m_fixture_image");
   await expect(page.getByAltText("Fixture image")).toBeVisible();
-});
-
-test("social cards use public images and video stills without forwarding visitor credentials", async ({ request }) => {
-  const headers = { "User-Agent": "Twitterbot", Cookie: "session=private-fixture", session: "private-fixture" };
-  const image = await request.get("/media/m_fixture_image", { headers });
-  const imageHtml = await image.text();
-  expect(imageHtml).toContain('property="og:image" content="https://media-fixture.invalid/asset.png?fixture=1"');
-  expect(imageHtml).toContain("Made with ArtCraft by Fixture Artist.");
-  expect(imageHtml).toContain('name="robots" content="noindex, follow"');
-  const video = await request.get("/media/m_fixture_video", { headers });
-  expect(await video.text()).toContain('property="og:image" content="https://media-fixture.invalid/still-1200.jpg"');
-  for (const token of ["m_fixture_audio", "m_private"]) {
-    const response = await request.get(`/media/${token}`, { headers });
-    expect(await response.text()).not.toContain('property="og:image" content="https://media-fixture.invalid/');
-  }
 });
 
 test("prompt and reference media are restored without blocking the preview", async ({ page }) => {
@@ -252,16 +238,6 @@ function fixture(kind: string, format: string): SharedMedia {
 
 async function mockMedia(page: Page, media: SharedMedia) {
   await page.route(`${API}/v1/media_files/file/**`, (route) => route.fulfill({ json: { success: true, media_file: media } }));
-}
-
-function wav() {
-  const buffer = Buffer.alloc(44 + 80000);
-  buffer.write("RIFF", 0); buffer.writeUInt32LE(buffer.length - 8, 4); buffer.write("WAVEfmt ", 8);
-  buffer.writeUInt32LE(16, 16); buffer.writeUInt16LE(1, 20); buffer.writeUInt16LE(1, 22);
-  buffer.writeUInt32LE(8000, 24); buffer.writeUInt32LE(16000, 28); buffer.writeUInt16LE(2, 32); buffer.writeUInt16LE(16, 34);
-  buffer.write("data", 36); buffer.writeUInt32LE(80000, 40);
-  for (let i = 0; i < 40000; i++) buffer.writeInt16LE(Math.round(Math.sin(i * 2 * Math.PI * 440 / 8000) * 12000), 44 + i * 2);
-  return buffer;
 }
 
 async function serveBytes(route: Route, bytes: Buffer, contentType: string) {

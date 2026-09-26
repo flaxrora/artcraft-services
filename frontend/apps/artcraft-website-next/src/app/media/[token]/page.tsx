@@ -1,40 +1,78 @@
 import type { Metadata } from "next";
 import MediaPage from "@/components/media/media-page";
-import { API_HOST } from "@/lib/api";
-import { mediaFilePath, mediaKind, mediaThumbnail, safeMediaUrl, type SharedMedia } from "@/lib/media";
+import { fetchPublicMediaFile } from "@/lib/fetch-public-media";
+import { mediaEmbed, mediaShareImage, MEDIA_SHARE_ORIGIN } from "@/lib/media-sharing";
+import { mediaTitle } from "@/lib/media";
 
-const OG_IMAGE_WIDTH = 1200;
+const FALLBACK_IMAGE = { url: "/images/og-image.png", width: 1200, height: 630, alt: "ArtCraft" };
 
 type Props = { params: Promise<{ token: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { token } = await params;
+  const url = `/media/${encodeURIComponent(token)}`;
+  const fallbackTitle = "Shared media";
+  const fallbackDescription = "View images, video, music, and interactive 3D creations shared with ArtCraft.";
   const metadata: Metadata = {
-    title: "Shared media",
-    description: "View images, video, music, and interactive 3D creations shared with ArtCraft.",
-    alternates: { canonical: `/media/${encodeURIComponent(token)}` },
+    title: fallbackTitle,
+    description: fallbackDescription,
+    alternates: { canonical: url },
     // A shared link is not a request to index a user's creation.
     robots: { index: false, follow: true },
+    openGraph: {
+      type: "website", siteName: "ArtCraft", url,
+      title: `${fallbackTitle} — ArtCraft`, description: fallbackDescription,
+      images: [FALLBACK_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image", title: `${fallbackTitle} — ArtCraft`,
+      description: fallbackDescription, images: [FALLBACK_IMAGE],
+    },
   };
   const media = await fetchPublicMediaFile(token);
   if (!media) return metadata;
-  const image = mediaKind(media) === "image"
-    ? safeMediaUrl(media.media_links.cdn_url)
-    : mediaThumbnail(media.media_links, OG_IMAGE_WIDTH);
+  const title = mediaTitle(media);
+  const image = mediaShareImage(media);
+  const embed = mediaEmbed(media);
+  const images = image ? [{ url: image, alt: title }] : [FALLBACK_IMAGE];
   const creator = media.maybe_creator_user;
   const description = creator
     ? `Made with ArtCraft by ${creator.display_name || creator.username}.`
     : "Made with ArtCraft.";
   return {
     ...metadata,
+    title,
     description,
     openGraph: {
-      title: "Shared Media — ArtCraft",
+      type: embed?.kind === "video" ? "video.other" : "website",
+      ...(embed?.kind === "video" && { videos: [{ url: embed.url, secureUrl: embed.url, type: embed.contentType }] }),
+      ...(embed?.kind === "audio" && { audio: [{ url: embed.url, secureUrl: embed.url, type: embed.contentType }] }),
+      siteName: "ArtCraft",
+      title: `${title} — ArtCraft`,
       description,
-      url: `/media/${encodeURIComponent(token)}`,
-      ...(image && { images: [{ url: image }] }),
+      url,
+      images,
     },
-    twitter: { card: image ? "summary_large_image" : "summary" },
+    twitter: {
+      ...(embed ? { card: "player" as const, players: [] } : { card: "summary_large_image" as const }),
+      title: `${title} — ArtCraft`,
+      description,
+      images,
+    },
+    ...(embed && {
+      alternates: { canonical: url, types: { "application/json+oembed": `${MEDIA_SHARE_ORIGIN}${url}/oembed?url=${encodeURIComponent(`${MEDIA_SHARE_ORIGIN}${url}`)}&format=json` } },
+      // Next's player descriptor requires a stream URL, while X's optional
+      // native stream must be MP4. Audio/WebM use the HTML player instead.
+      other: {
+        "twitter:player": `${MEDIA_SHARE_ORIGIN}${url}/player`,
+        "twitter:player:width": embed.width,
+        "twitter:player:height": embed.height,
+        ...(embed.contentType === "video/mp4" && {
+          "twitter:player:stream": embed.url,
+          "twitter:player:stream:content_type": embed.contentType,
+        }),
+      },
+    }),
   };
 }
 
@@ -43,23 +81,4 @@ export default async function Media({ params }: Props) {
   // Resolve in the browser, using the same session credentials as the Vite
   // viewer. Never cache one visitor's private media response in server HTML.
   return <MediaPage key={token} token={token} />;
-}
-
-// Social cards use only the public API response. Never forward a visitor's
-// cookies or signed session into server metadata; private media stays client-side.
-async function fetchPublicMediaFile(token: string): Promise<SharedMedia | null> {
-  try {
-    const response = await fetch(`${API_HOST}${mediaFilePath(token)}`, {
-      headers: { Accept: "application/json" },
-      credentials: "omit",
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!response.ok) return null;
-    const payload = await response.json() as { success?: boolean; media_file?: SharedMedia };
-    const media = payload.media_file;
-    return payload.success && media?.token && safeMediaUrl(media.media_links?.cdn_url) ? media : null;
-  } catch {
-    return null;
-  }
 }

@@ -8,6 +8,7 @@ export type SharedMedia = {
   media_type?: string | null;
   maybe_engine_category?: string | null;
   maybe_title?: string | null;
+  creator_set_visibility?: string | null;
   maybe_original_filename?: string | null;
   maybe_prompt_token?: string | null;
   maybe_text_transcript?: string | null;
@@ -18,6 +19,9 @@ export type SharedMedia = {
   } | null;
   maybe_model_weight_info?: { title: string } | null;
   created_at?: string;
+  cover_image?: {
+    maybe_links?: { cdn_url: string; thumbnail_template?: string | null } | null;
+  } | null;
   media_links: {
     cdn_url: string;
     maybe_thumbnail_template?: string | null;
