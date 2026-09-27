@@ -7,7 +7,7 @@ import { Button } from "@storyteller/ui-button";
 import { LoadingSpinner } from "@storyteller/ui-loading-spinner";
 import {
   UsersApi,
-  UserMediaFilesV2Api,
+  GalleryModalApi,
   MediaFilesApi,
   FoldersApi,
   FilterMediaClasses,
@@ -225,7 +225,7 @@ export default function Library() {
   // Clear it when leaving the library area.
   useEffect(() => () => useLibrarySelectionStore.getState().clear(), []);
 
-  const userMediaFilesV2Api = useMemo(() => new UserMediaFilesV2Api(), []);
+  const api = useMemo(() => new GalleryModalApi(), []);
   const mediaFilesApi = useMemo(() => new MediaFilesApi(), []);
   const foldersApi = useMemo(() => new FoldersApi(), []);
   // Keyset cursor for the Meshes / Splats tabs (their endpoints paginate by
@@ -443,7 +443,7 @@ export default function Library() {
             );
           }
         } else {
-          const response = await userMediaFilesV2Api.ListUserMediaFiles({
+          const response = await api.listUserMediaFiles({
             username,
             filter_media_classes: getFilterMediaClass(activeFilter),
             include_user_uploads: true,
@@ -468,9 +468,9 @@ export default function Library() {
               .map(mapRawToGalleryItem);
             setAllItems((prev) => (reset ? newItems : [...prev, ...newItems]));
             const current = response.pagination?.current ?? 0;
+            const total = response.pagination?.total_page_count ?? 1;
             setPageIndex(current + 1);
-            // UI filtering can leave fewer visible items even when another page exists.
-            setHasMore(response.pagination?.has_more ?? false);
+            setHasMore(current + 1 < total);
           }
         }
       } catch {
@@ -484,7 +484,7 @@ export default function Library() {
       username,
       activeFilter,
       pageIndex,
-      userMediaFilesV2Api,
+      api,
       mediaFilesApi,
       foldersApi,
       folderlessClass,

@@ -1,7 +1,7 @@
 # User media library query
 
 `GET /v1/media_files/list/user/{username}` runs an exact count before fetching
-each page. The webapp previously used it for infinite scroll. MySQL can choose
+each page. The webapp continues to use it for infinite scroll. MySQL can choose
 an index-merge plan that intersects the creator index with global indexes on
 NULL deletion timestamps and the intermediate-file flag. That makes the count
 scan unrelated users' index entries.
@@ -18,8 +18,8 @@ original query fields and defaults, no new page-size cap, and the original
 `1 + floor(count / page_size)` calculation is intentionally preserved, including
 exact multiples. It always performs the optimized exact count.
 
-The webapp now uses the separate
-`GET /v1/media_files/list_v2/user/{username}` endpoint. `list_v2` fetches one extra record
+The separate `GET /v1/media_files/list_v2/user/{username}` endpoint is available
+for adoption after backend deployment. `list_v2` fetches one extra record
 and returns `pagination: { current, has_more }`. It never counts the library and
 has no count-mode flag or total-page field. `list_v2` accepts page sizes from 1 to 100.
 Both endpoints return the same media-item fields and enforce the same visibility
@@ -38,11 +38,16 @@ requests, but does not remove that offset cost.
 
 ## Deployment
 
-Deploy storyteller-web with the new `list_v2` route before deploying the webapp
-that calls it. Both routes remain in API v1; this is an endpoint-local revision.
-Existing clients continue using `/v1/media_files/list/user/{username}` unchanged.
-The webapp uses a separate `UserMediaFilesV2Api` binding for the faster endpoint;
-the original bindings are intact.
+The frontend switch is deferred. The webapp continues using
+`GalleryModalApi.listUserMediaFiles` and the existing
+`/v1/media_files/list/user/{username}` endpoint with numbered pagination.
+The `UserMediaFilesV2Api` library binding and its tests are retained, with no live
+frontend callers.
+
+Deploy and verify storyteller-web with the new `list_v2` route before a separate
+frontend change adopts `UserMediaFilesV2Api` and its `has_more` pagination.
+Both routes remain in API v1; this is an endpoint-local revision. Existing
+clients and the original bindings remain unchanged.
 
 No new migration is needed. The existing migration
 `2026-07-03-074740-0000_alter_media_files_add_user_created_at_index`
