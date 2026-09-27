@@ -1,6 +1,7 @@
 pub (crate) mod artcraft_admin_dashboard;
 pub (crate) mod artcraft_2d;
 pub (crate) mod artcraft_3d;
+pub (crate) mod artcraft_desktop;
 pub (crate) mod artcraft_webapp;
 pub (crate) mod artcraft_website;
 pub (crate) mod development_only;
