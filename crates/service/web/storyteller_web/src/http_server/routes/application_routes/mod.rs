@@ -29,3 +29,5 @@ mod web_referrals_routes;
 mod webhook_routes;
 mod weights_routes;
 pub (super) mod add_application_routes;
+#[cfg(test)]
+mod user_media_endpoint_tests;

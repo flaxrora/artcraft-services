@@ -8,6 +8,7 @@ use enums::common::view_as::ViewAs;
 use errors::{anyhow, AnyhowResult};
 use mysql_queries::queries::media_files::delete::delete_media_file::delete_media_file_as_mod;
 use mysql_queries::queries::media_files::list::list_media_files_for_user::{list_media_files_for_user, ListMediaFileForUserArgs};
+use mysql_queries::queries::media_files::list::user_media_file_filters::UserMediaFileFilters;
 use mysql_queries::queries::users::user_profiles::get_user_profile_by_username::get_user_profile_by_username;
 
 use crate::cli_args::Args;
@@ -42,23 +43,25 @@ pub async fn delete_all_files(username: &str, mysql: &Pool<MySql>) -> AnyhowResu
     info!("Querying page {page_index} of files...");
 
     let media_files = list_media_files_for_user(ListMediaFileForUserArgs {
-      username,
-      maybe_filter_media_types: None,
-      maybe_filter_media_classes: None,
-      maybe_filter_engine_categories: None,
-      include_user_uploads: true,
-      page_size: 100,
-      page_index,
+      filters: UserMediaFileFilters {
+        username,
+        maybe_filter_media_types: None,
+        maybe_filter_media_classes: None,
+        maybe_filter_engine_categories: None,
+        include_user_uploads: true,
+        view_as: ViewAs::Moderator,
+      },
+      limit: 100,
+      offset: page_index * 100,
       sort_ascending: false,
-      view_as: ViewAs::Moderator,
-      mysql_pool: &mysql,
+      mysql_executor: mysql,
     }).await?;
 
-    if media_files.records.is_empty() {
+    if media_files.is_empty() {
       break;
     }
 
-    for file in media_files.records {
+    for file in media_files {
       info!("Deleting file: {:?}", &file.token);
       delete_media_file_as_mod(&file.token, ECHELON_USER_TOKEN, mysql).await?;
     }

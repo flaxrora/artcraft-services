@@ -59,6 +59,7 @@ use crate::http_server::endpoints::media_files::get::get_media_file_handler::*;
 use crate::http_server::endpoints::media_files::list::list_featured_media_files_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_by_batch_token_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_for_user_handler::*;
+use crate::http_server::endpoints::media_files::list::list_media_files_for_user_v2_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_handler::*;
 use crate::http_server::endpoints::media_files::list::list_pinned_media_files_handler::*;
 use crate::http_server::endpoints::media_files::search::search_featured_media_files_handler::*;
@@ -519,6 +520,7 @@ use crate::http_server::endpoints::media_files::list::list_batch_generated_redux
     crate::http_server::endpoints::media_files::list::list_featured_media_files_handler::list_featured_media_files_handler,
     crate::http_server::endpoints::media_files::list::list_media_files_by_batch_token_handler::list_media_files_by_batch_token_handler,
     crate::http_server::endpoints::media_files::list::list_media_files_for_user_handler::list_media_files_for_user_handler,
+    crate::http_server::endpoints::media_files::list::list_media_files_for_user_v2_handler::list_media_files_for_user_v2_handler,
     crate::http_server::endpoints::media_files::list::list_media_files_handler::list_media_files_handler,
     crate::http_server::endpoints::media_files::list::list_pinned_media_files_handler::list_pinned_media_files_handler,
     crate::http_server::endpoints::media_files::list::by_type::list_session_mesh_media_files_handler::list_session_mesh_media_files_handler,
@@ -1182,6 +1184,10 @@ use crate::http_server::endpoints::media_files::list::list_batch_generated_redux
     ListMediaFilesForUserPathInfo,
     ListMediaFilesForUserQueryParams,
     ListMediaFilesForUserSuccessResponse,
+    ListMediaFilesForUserV2PathInfo,
+    ListMediaFilesForUserV2QueryParams,
+    ListMediaFilesForUserV2SuccessResponse,
+    UserMediaFileV2Pagination,
     ListMediaFilesQueryParams,
     ListMediaFilesSuccessResponse,
     ListPinnedMediaFilesSuccessResponse,

@@ -96,6 +96,18 @@ Organize for top-to-bottom reading. Important things first, details later.
 - Among helpers: meatier logic above leaf-level formatters
 - **In test modules**: constants first, then test cases (grouped into sub-modules when 2+), then helper functions last
 
+## Public API Compatibility
+
+- Public HTTP endpoints have deployed legacy clients. Preserve their request and
+  response schemas, defaults, limits, and pagination behavior when optimizing them.
+- Put a changed contract behind a new endpoint/version and update new clients to
+  call it explicitly. Do not add a new mode or change response fields on an existing
+  public endpoint as part of a performance fix.
+- For an endpoint-local revision, version the operation path (for example,
+  `/v1/media_files/list_v2/user/{username}`). Reserve a top-level `/v2` for broader
+  API changes.
+- Add regression tests for the original contract alongside tests for the new route.
+
 ## Markdown
 
 - **Tables must be space-padded so columns align in plain text.** Markdown

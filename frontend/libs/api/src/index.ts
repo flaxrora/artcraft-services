@@ -9,6 +9,7 @@ export * from "./lib/GenerationApi.js";
 export * from "./lib/EngineApi.js";
 export * from "./lib/JobsApi.js";
 export * from "./lib/MediaFilesApi.js";
+export * from "./lib/UserMediaFilesV2Api.js";
 export * from "./lib/MediaUploadApi.js";
 export * from "./lib/MiscApi.js";
 export * from "./lib/LocalApi.js";
