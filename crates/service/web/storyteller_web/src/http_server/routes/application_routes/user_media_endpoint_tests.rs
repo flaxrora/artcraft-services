@@ -7,6 +7,7 @@ use actix_web::body::MessageBody;
 use actix_web::dev::{Service, ServiceResponse};
 use actix_web::http::StatusCode;
 use actix_web::{test, web, App};
+use artcraft_api_defs::media_file::list::list_media_files_for_user_v2::ListMediaFilesForUserV2SuccessResponse;
 use mysql_testing::fixtures::media_files::create_test_video_media_file;
 use mysql_testing::fixtures::users::create_test_user;
 use mysql_testing::isolated::IsolatedTestDatabase;
@@ -108,6 +109,11 @@ async fn user_media_endpoint_versions_preserve_legacy_contract() {
   assert_eq!(first_v2.as_object().unwrap().len(), 3);
   assert_eq!(first_v2["results"], legacy["results"]);
   assert_eq!(first_v2["pagination"], json!({"current": 0, "has_more": true}));
+  // A Rust API client can decode and re-encode the full response without
+  // dropping nested or deprecated fields from either endpoint's media items.
+  let typed_v2: ListMediaFilesForUserV2SuccessResponse = serde_json::from_value(first_v2.clone()).unwrap();
+  assert_eq!(typed_v2.results.len(), 25);
+  assert_eq!(serde_json::to_value(typed_v2).unwrap(), first_v2);
   let (_, last_v2) = get(&app, &format!("{v2}?include_user_uploads=true&page_index=1"), session).await;
   assert_eq!(last_v2["results"], last["results"]);
   assert_eq!(last_v2["pagination"], json!({"current": 1, "has_more": false}));

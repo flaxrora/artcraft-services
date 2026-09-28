@@ -59,7 +59,6 @@ use crate::http_server::endpoints::media_files::get::get_media_file_handler::*;
 use crate::http_server::endpoints::media_files::list::list_featured_media_files_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_by_batch_token_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_for_user_handler::*;
-use crate::http_server::endpoints::media_files::list::list_media_files_for_user_v2_handler::*;
 use crate::http_server::endpoints::media_files::list::list_media_files_handler::*;
 use crate::http_server::endpoints::media_files::list::list_pinned_media_files_handler::*;
 use crate::http_server::endpoints::media_files::search::search_featured_media_files_handler::*;
@@ -379,6 +378,12 @@ use artcraft_api_defs::media_file::list::by_type::list_session_common::*;
 use artcraft_api_defs::media_file::job::list_media_files_by_job::*;
 use artcraft_api_defs::media_file::list::by_type::list_session_mesh_media_files::*;
 use artcraft_api_defs::media_file::list::by_type::list_session_splat_media_files::*;
+use artcraft_api_defs::media_file::list::list_media_files_for_user_v2::{
+  ListMediaFilesForUserV2PathInfo, ListMediaFilesForUserV2QueryParams,
+  ListMediaFilesForUserV2SuccessResponse, UserMediaFileV2Pagination,
+};
+use artcraft_api_defs::media_file::list::user_media_file_list_item::MediaFileForUserListItem;
+use artcraft_api_defs::common::responses::legacy_media_file_cover_image_details::LegacyMediaFileCoverImageDetails;
 use artcraft_api_defs::media_file::list_session_project_media_files::*;
 use artcraft_api_defs::media_file::project::upload_updated_mood_board_project::*;
 use artcraft_api_defs::media_file::project::upload_new_mood_board_project::*;
@@ -1142,6 +1147,7 @@ use crate::http_server::endpoints::media_files::list::list_batch_generated_redux
     InferTtsSuccessResponse,
     InferenceJobStatusResponsePayload,
     InferenceJobTokenType,
+    LegacyMediaFileCoverImageDetails,
     LegacyQueueDetails,
     ListActiveUserSubscriptionsResponse,
     ListAvailableWeightsQuery,
