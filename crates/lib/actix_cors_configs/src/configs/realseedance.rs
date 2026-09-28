@@ -12,3 +12,25 @@ pub fn add_realseedance(cors: Cors, _is_production: bool) -> Cors {
         netlify_branch_domain_matches(origin, "real-seedance.netlify.app")
       })
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::testing::{assert_exact_https_origin, assert_netlify_project, isolated_cors};
+
+  use super::add_realseedance;
+
+  #[actix_rt::test]
+  async fn domains() {
+    for is_production in [true, false] {
+      let cors = isolated_cors(add_realseedance, is_production);
+      assert_exact_https_origin(&cors, "https://realseedance.com").await;
+      assert_exact_https_origin(&cors, "https://www.realseedance.com").await;
+    }
+  }
+
+  #[actix_rt::test]
+  async fn netlify_project() {
+    let cors = isolated_cors(add_realseedance, true);
+    assert_netlify_project(&cors, "real-seedance.netlify.app").await;
+  }
+}
