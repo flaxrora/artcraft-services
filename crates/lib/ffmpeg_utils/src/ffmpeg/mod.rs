@@ -5,3 +5,4 @@ pub mod ffmpeg_video_first_frame_to_jpg_thumbnail;
 pub mod ffmpeg_video_gif_preview;
 pub mod ffmpeg_video_webp_preview;
 mod run_thumbnail_ffmpeg;
+pub mod webp_ffmpeg_binary;

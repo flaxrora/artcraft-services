@@ -5,6 +5,7 @@ use std::process::Command;
 use errors::AnyhowResult;
 
 use crate::ffmpeg::run_thumbnail_ffmpeg::run_thumbnail_ffmpeg;
+use crate::ffmpeg::webp_ffmpeg_binary::webp_ffmpeg;
 
 /// Lossy WebP quality (0-100). Started at 60 on 2026-09-28; on the test video
 /// this was ~50x smaller than the GIF preview (23 KB vs 1.1 MB). Safe to tune:
@@ -20,12 +21,12 @@ pub struct FfmpegVideoWebpPreviewArgs<I: AsRef<Path>, O: AsRef<Path>> {
 ///
 /// Uses the same frames as the GIF preview (`ffmpeg_video_gif_preview`): the
 /// first 5 seconds, resampled to 10 fps, scaled to fit within 360x360
-/// (preserving aspect ratio). Requires an ffmpeg built with libwebp (the
-/// `libwebp_anim` encoder), as Ubuntu's `ffmpeg` package is.
+/// (preserving aspect ratio). Runs the ffmpeg chosen by
+/// `webp_ffmpeg_binary::resolve_webp_ffmpeg` (call it at startup).
 pub fn ffmpeg_video_webp_preview<I: AsRef<Path>, O: AsRef<Path>>(
   args: FfmpegVideoWebpPreviewArgs<I, O>,
 ) -> AnyhowResult<()> {
-  let mut command = Command::new("ffmpeg");
+  let mut command = Command::new(webp_ffmpeg()?);
 
   command
       .arg("-nostdin")
@@ -57,6 +58,7 @@ pub fn ffmpeg_video_webp_preview<I: AsRef<Path>, O: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::ffmpeg::webp_ffmpeg_binary::resolve_webp_ffmpeg;
   use tempdir::TempDir;
   use test_utils::test_file_path::test_file_path;
 
@@ -103,18 +105,16 @@ mod tests {
     assert_eq!((width, height), (360, 270));
   }
 
-  /// This machine's ffmpeg may lack libwebp (eg. some Homebrew builds).
-  /// Production (Ubuntu's ffmpeg package) has it.
+  /// Resolves like a development job would (including the macOS `ffmpeg-full`
+  /// fallback). Skips if this machine has no webp-capable ffmpeg at all.
   fn libwebp_anim_available() -> bool {
-    let output = Command::new("ffmpeg")
-        .args(["-hide_banner", "-encoders"])
-        .output()
-        .expect("ffmpeg should run");
-    let available = String::from_utf8_lossy(&output.stdout).contains("libwebp_anim");
-    if !available {
-      eprintln!("SKIPPED: this ffmpeg has no libwebp_anim encoder, so the webp preview can't be tested here.");
+    match resolve_webp_ffmpeg(true) {
+      Ok(_) => true,
+      Err(err) => {
+        eprintln!("SKIPPED: {}", err);
+        false
+      }
     }
-    available
   }
 
   /// Offset of the first RIFF chunk with this FourCC, walking top-level chunks
