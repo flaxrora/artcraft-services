@@ -35,6 +35,7 @@ artcraft-services/
 │   ├── apps/artcraft-webapp/       # Browser application at app.getartcraft.com
 │   ├── apps/artcraft-website-next/ # Current public website at getartcraft.com (Next.js)
 │   ├── apps/artcraft-website/      # Legacy product website (Vite)
+│   ├── apps/artcraft-desktop-website/ # Static landing page at desktop.getartcraft.com (Vite)
 │   └── libs/                      # Shared React components and TypeScript libraries
 └── Cargo.toml                    # Rust workspace
 ```
