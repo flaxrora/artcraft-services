@@ -79,6 +79,8 @@ pub struct ResultDetails {
   pub public_bucket_location_or_hash: String,
   pub maybe_media_file_public_bucket_prefix: Option<String>,
   pub maybe_media_file_public_bucket_extension: Option<String>,
+  pub maybe_media_file_thumbnail_version: Option<u8>,
+  pub maybe_media_file_created_at: Option<DateTime<Utc>>,
 
   /// Whether the location is a full path (for tts) or a hash (for vc) that
   /// needs to be reconstructed into a path.

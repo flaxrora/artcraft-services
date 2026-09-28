@@ -25,6 +25,7 @@ use mysql_queries::queries::prompts::get_prompt::get_prompt_from_connection;
 
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::web_utils::require_internal_api_key::require_internal_api_key;
 use crate::state::server_state::ServerState;
@@ -170,7 +171,8 @@ async fn build_prompt_details(
       let media_links = MediaLinksBuilder::from_media_path_and_env(
         media_domain,
         server_state.server_environment,
-        &bucket_path);
+        &bucket_path,
+        VideoThumbnailInfo::new(item.maybe_thumbnail_version, item.created_at));
 
       MinimaxJobMediaReference {
         media_file_token: item.media_token,

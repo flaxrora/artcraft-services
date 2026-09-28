@@ -23,6 +23,7 @@ use utoipa::{IntoParams, ToSchema};
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::media_file_origin_details::MediaFileOriginDetails;
 use crate::http_server::common_responses::pagination_cursors::PaginationCursors;
 use crate::http_server::common_responses::simple_entity_stats::SimpleEntityStats;
@@ -300,7 +301,8 @@ pub async fn list_media_files_handler(
           media_links: MediaLinksBuilder::from_media_path_and_env(
             media_domain,
             server_state.server_environment,
-            &public_bucket_path
+            &public_bucket_path,
+            VideoThumbnailInfo::new(record.maybe_thumbnail_version, record.created_at)
           ),
           public_bucket_path: public_bucket_path
               .get_full_object_path_str()

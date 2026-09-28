@@ -66,6 +66,7 @@ pub struct MediaFile {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
@@ -114,6 +115,7 @@ pub struct MediaFileRaw {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
@@ -189,6 +191,7 @@ pub async fn list_batch_generated_redux_media_files_with_transactor(
           public_bucket_directory_hash: record.public_bucket_directory_hash,
           maybe_public_bucket_prefix: record.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: record.maybe_public_bucket_extension,
+          maybe_thumbnail_version: record.maybe_thumbnail_version,
           created_at: record.created_at,
           updated_at: record.updated_at,
         }
@@ -246,6 +249,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     m.created_at,
     m.updated_at
@@ -337,6 +341,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     m.created_at,
     m.updated_at

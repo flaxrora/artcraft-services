@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_file_cover_image_details_builder::MediaFileCoverImageDetailsBuilder;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::user_details_lite_builder::UserDetailsLightBuilder;
 use crate::http_server::endpoints::media_files::get::get_media_file_handler::GetMediaFilePathInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
@@ -91,7 +92,8 @@ pub async fn list_batch_generated_redux_media_files_handler(
           media_links: MediaLinksBuilder::from_media_path_and_env(
             media_domain,
             server_state.server_environment,
-            &public_bucket_path
+            &public_bucket_path,
+            VideoThumbnailInfo::new(result.maybe_thumbnail_version, result.created_at)
           ),
           cover_image: MediaFileCoverImageDetailsBuilder::from_optional_db_fields(
             &result.token,

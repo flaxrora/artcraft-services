@@ -30,6 +30,7 @@ pub struct SessionMediaFileListItem {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub maybe_creator_user_token: Option<UserToken>,
   pub maybe_creator_username: Option<String>,
@@ -141,6 +142,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     users.token as `maybe_creator_user_token: tokens::tokens::users::UserToken`,
     users.username as maybe_creator_username,
@@ -206,6 +208,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     users.token as `maybe_creator_user_token: tokens::tokens::users::UserToken`,
     users.username as maybe_creator_username,

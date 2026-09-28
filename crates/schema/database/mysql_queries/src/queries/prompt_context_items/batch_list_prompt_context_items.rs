@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use sqlx::mysql::MySqlRow;
 use sqlx::pool::PoolConnection;
 use sqlx::{FromRow, MySql, QueryBuilder, Row};
@@ -16,6 +17,9 @@ pub struct BatchPromptContextItem {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
+  pub created_at: DateTime<Utc>,
 }
 
 impl FromRow<'_, MySqlRow> for BatchPromptContextItem {
@@ -27,6 +31,8 @@ impl FromRow<'_, MySqlRow> for BatchPromptContextItem {
       public_bucket_directory_hash: row.try_get("public_bucket_directory_hash")?,
       maybe_public_bucket_prefix: row.try_get("maybe_public_bucket_prefix")?,
       maybe_public_bucket_extension: row.try_get("maybe_public_bucket_extension")?,
+      maybe_thumbnail_version: row.try_get("maybe_thumbnail_version")?,
+      created_at: row.try_get("created_at")?,
     })
   }
 }
@@ -49,7 +55,9 @@ SELECT
 
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
-    m.maybe_public_bucket_extension
+    m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version,
+    m.created_at
 
 FROM prompt_context_items pci
 JOIN media_files m ON pci.media_token = m.token

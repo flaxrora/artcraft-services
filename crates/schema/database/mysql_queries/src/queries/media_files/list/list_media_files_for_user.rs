@@ -25,6 +25,7 @@ const RESULT_FIELDS: &str = r#"
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version,
 
     m.maybe_prompt_token,
 

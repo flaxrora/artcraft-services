@@ -14,6 +14,9 @@ pub struct PromptContextItem {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
+  pub created_at: DateTime<Utc>,
 }
 
 struct RawPromptContextItem {
@@ -22,6 +25,8 @@ struct RawPromptContextItem {
   public_bucket_directory_hash: String,
   maybe_public_bucket_prefix: Option<String>,
   maybe_public_bucket_extension: Option<String>,
+  maybe_thumbnail_version: Option<u8>,
+  created_at: DateTime<Utc>,
 }
 
 pub async fn list_prompt_context_items(
@@ -37,7 +42,9 @@ SELECT
 
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
-    m.maybe_public_bucket_extension
+    m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
+    m.created_at as `created_at: DateTime<Utc>`
 
 FROM prompt_context_items pci
 JOIN media_files m
@@ -61,6 +68,8 @@ ORDER BY pci.id ASC
           public_bucket_directory_hash: item.public_bucket_directory_hash,
           maybe_public_bucket_prefix: item.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: item.maybe_public_bucket_extension,
+          maybe_thumbnail_version: item.maybe_thumbnail_version,
+          created_at: item.created_at,
         }
       }).collect::<Vec<PromptContextItem>>())
     }

@@ -60,6 +60,8 @@ fn select_result_fields() -> &'static str {
     media_files.public_bucket_directory_hash as maybe_media_file_public_bucket_hash,
     media_files.maybe_public_bucket_prefix as maybe_media_file_public_bucket_prefix,
     media_files.maybe_public_bucket_extension as maybe_media_file_public_bucket_extension,
+    media_files.maybe_thumbnail_version as maybe_media_file_thumbnail_version,
+    media_files.created_at as maybe_media_file_created_at,
     media_file_creator.token as maybe_media_file_creator_user_token,
     media_file_creator.username as maybe_media_file_creator_username,
     media_file_creator.display_name as maybe_media_file_creator_display_name,

@@ -6,9 +6,10 @@ use log::{error, info};
 use tempdir::TempDir;
 
 use bucket_paths::legacy::typified_paths::public::media_files::bucket_file_path::MediaFileBucketPath;
-use bucket_paths::path_conventions::video_thumbnail_suffixes::{CURRENT_VIDEO_THUMBNAIL_VERSION, VIDEO_ANIMATED_GIF_THUMBNAIL_SUFFIX, VIDEO_STATIC_JPG_THUMBNAIL_SUFFIX};
+use bucket_paths::path_conventions::video_thumbnail_suffixes::{CURRENT_VIDEO_THUMBNAIL_VERSION, VIDEO_ANIMATED_GIF_THUMBNAIL_SUFFIX, VIDEO_ANIMATED_WEBP_THUMBNAIL_SUFFIX, VIDEO_STATIC_JPG_THUMBNAIL_SUFFIX};
 use ffmpeg_utils::ffmpeg::ffmpeg_video_first_frame_to_jpg_thumbnail::{ffmpeg_video_first_frame_to_jpg_thumbnail, FfmpegVideoFirstFrameToJpgThumbnailArgs};
 use ffmpeg_utils::ffmpeg::ffmpeg_video_gif_preview::{ffmpeg_video_gif_preview, FfmpegVideoGifPreviewArgs};
+use ffmpeg_utils::ffmpeg::ffmpeg_video_webp_preview::{ffmpeg_video_webp_preview, FfmpegVideoWebpPreviewArgs};
 use mysql_queries::queries::media_files::thumbnails::list_video_media_files_without_thumbnails_for_job::VideoMediaFileWithoutThumbnail;
 use mysql_queries::queries::media_files::thumbnails::update_video_media_file_with_thumbnail::update_video_media_file_with_thumbnail;
 
@@ -24,6 +25,10 @@ pub struct DownloadedFile {
 }
 
 /// Download the source video from the bucket, generate thumbnails, and upload them.
+///
+/// Writes thumbnail version 2 (see `video_thumbnail_suffixes`): a first-frame
+/// jpg, an animated webp, and an animated gif. The gif is a dual write kept for
+/// ArtCraft desktop on macOS Catalina, which can't render animated webp.
 pub async fn process_single_media_file(
   deps: &JobDependencies,
   media_file: &VideoMediaFileWithoutThumbnail,
@@ -91,7 +96,7 @@ pub async fn process_single_media_file(
 
   info!("Uploaded JPG thumbnail to {}", jpg_object_path);
 
-  // Generate gif thumbnail
+  // Generate gif thumbnail (dual write for macOS Catalina; see `video_thumbnail_suffixes`)
   let gif_path = downloaded.temp_dir.path().join("thumbnail.gif");
 
   let stage_started_at = Instant::now();
@@ -122,6 +127,39 @@ pub async fn process_single_media_file(
   }
 
   info!("Uploaded GIF preview to {}", gif_object_path);
+
+  // Generate webp thumbnail
+  let webp_path = downloaded.temp_dir.path().join("thumbnail.webp");
+
+  let stage_started_at = Instant::now();
+  let source = Arc::clone(&downloaded);
+  let destination = webp_path.clone();
+  let result = tokio::task::spawn_blocking(move || {
+    ffmpeg_video_webp_preview(FfmpegVideoWebpPreviewArgs {
+      input_video_path: &source.file_path,
+      output_webp_path: &destination,
+    })
+  }).await.map_err(anyhow::Error::from).and_then(|result| result);
+  timing.log_stage("webp_generation", stage_started_at, result.is_ok());
+  if let Err(err) = result {
+    error!("Failed to generate WebP preview for {}: {:?}", media_file.token.as_str(), err);
+    return alert_pager_and_return_err(&deps.pager, "WebP preview generation failed", err.into());
+  }
+
+  info!("Generated WebP preview for {}", media_file.token.as_str());
+
+  let webp_object_path = format!("{video_object_path}{VIDEO_ANIMATED_WEBP_THUMBNAIL_SUFFIX}");
+
+  let stage_started_at = Instant::now();
+  // NB: Explicit content type; the jpg and gif uploads above use the bucket default.
+  let result = deps.public_bucket_client.upload_filename_with_content_type(&webp_object_path, &webp_path, "image/webp").await;
+  timing.log_stage("webp_upload", stage_started_at, result.is_ok());
+  if let Err(err) = result {
+    error!("Failed to upload WebP preview for {}: {:?}", media_file.token.as_str(), err);
+    return alert_pager_and_return_err(&deps.pager, "WebP preview upload failed", err);
+  }
+
+  info!("Uploaded WebP preview to {}", webp_object_path);
 
   info!("Marking thumbnail job for {:?} done", media_file.token);
 

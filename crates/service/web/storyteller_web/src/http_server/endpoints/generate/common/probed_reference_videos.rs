@@ -50,6 +50,7 @@ use tokens::tokens::media_files::MediaFileToken;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::util::http_download_url_to_tempfile::http_download_url_to_tempfile;
 use crate::util::lookup::lookup_media_files_as_cdn_url_list_and_map::apply_media_cdn_override;
@@ -143,7 +144,8 @@ pub async fn fetch_reference_video_sources(
       let media_links = MediaLinksBuilder::from_media_path_and_env(
         media_domain,
         server_environment,
-        &bucket_path);
+        &bucket_path,
+        VideoThumbnailInfo::new(file.maybe_thumbnail_version, file.created_at));
 
       let cdn_url = apply_media_cdn_override(
         &media_links.cdn_url,

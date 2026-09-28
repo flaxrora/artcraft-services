@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::media::weights_cover_image_details::WeightsCoverImageDetails;
 use crate::http_server::common_responses::pagination_page::PaginationPage;
 use crate::http_server::common_responses::simple_entity_stats::SimpleEntityStats;
@@ -228,11 +229,14 @@ pub async fn list_user_bookmarks_for_user_handler(
                   user_bookmark.maybe_media_file_public_bucket_extension.as_deref())
               });
 
+          // NB: The bucket hash and created_at come from the same joined media file row.
           let maybe_media_file_media_links = maybe_media_file_bucket_path.as_ref()
-              .map(|bucket_path| MediaLinksBuilder::from_media_path_and_env(
-                media_domain, 
+              .zip(user_bookmark.maybe_media_file_created_at)
+              .map(|(bucket_path, created_at)| MediaLinksBuilder::from_media_path_and_env(
+                media_domain,
                 server_state.server_environment,
-                bucket_path));
+                bucket_path,
+                VideoThumbnailInfo::new(user_bookmark.maybe_media_file_thumbnail_version, created_at)));
 
           let mut maybe_media_file_cover = None;
           let mut maybe_model_weight_cover = None;

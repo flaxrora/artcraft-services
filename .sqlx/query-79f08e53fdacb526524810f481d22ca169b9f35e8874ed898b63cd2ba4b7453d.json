@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "\nSELECT\n    m.token as `token: tokens::tokens::media_files::MediaFileToken`,\n\n    m.media_class as `media_class: enums::by_table::media_files::media_file_class::MediaFileClass`,\n    m.media_type as `media_type: enums::by_table::media_files::media_file_type::MediaFileType`,\n\n    m.maybe_batch_token as `maybe_batch_token: tokens::tokens::batch_generations::BatchGenerationToken`,\n    m.maybe_prompt_token as `maybe_prompt_token: tokens::tokens::prompts::PromptToken`,\n\n    m.public_bucket_directory_hash,\n    m.maybe_public_bucket_prefix,\n    m.maybe_public_bucket_extension,\n\n    media_file_cover_image.public_bucket_directory_hash as maybe_file_cover_image_public_bucket_hash,\n    media_file_cover_image.maybe_public_bucket_prefix as maybe_file_cover_image_public_bucket_prefix,\n    media_file_cover_image.maybe_public_bucket_extension as maybe_file_cover_image_public_bucket_extension,\n\n    m.maybe_origin_filename,\n    m.maybe_duration_millis as `maybe_duration_millis: u64`,\n\n    m.created_at,\n    m.updated_at\n\nFROM media_files AS m\nLEFT OUTER JOIN media_files as media_file_cover_image\n    ON media_file_cover_image.token = m.maybe_cover_image_media_file_token\nWHERE\n    m.maybe_source_job_token = ?\n    AND m.maybe_creator_user_token = ?\n    AND m.user_deleted_at IS NULL\n    AND m.mod_deleted_at IS NULL\n    AND NOT m.is_intermediate_system_file\nORDER BY m.id ASC\nLIMIT ?\n      ",
+  "query": "\nSELECT\n    m.token as `token: tokens::tokens::media_files::MediaFileToken`,\n\n    m.media_class as `media_class: enums::by_table::media_files::media_file_class::MediaFileClass`,\n    m.media_type as `media_type: enums::by_table::media_files::media_file_type::MediaFileType`,\n\n    m.maybe_batch_token as `maybe_batch_token: tokens::tokens::batch_generations::BatchGenerationToken`,\n    m.maybe_prompt_token as `maybe_prompt_token: tokens::tokens::prompts::PromptToken`,\n\n    m.public_bucket_directory_hash,\n    m.maybe_public_bucket_prefix,\n    m.maybe_public_bucket_extension,\n    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,\n\n    media_file_cover_image.public_bucket_directory_hash as maybe_file_cover_image_public_bucket_hash,\n    media_file_cover_image.maybe_public_bucket_prefix as maybe_file_cover_image_public_bucket_prefix,\n    media_file_cover_image.maybe_public_bucket_extension as maybe_file_cover_image_public_bucket_extension,\n\n    m.maybe_origin_filename,\n    m.maybe_duration_millis as `maybe_duration_millis: u64`,\n\n    m.created_at,\n    m.updated_at\n\nFROM media_files AS m\nLEFT OUTER JOIN media_files as media_file_cover_image\n    ON media_file_cover_image.token = m.maybe_cover_image_media_file_token\nWHERE\n    m.maybe_source_job_token = ?\n    AND m.maybe_creator_user_token = ?\n    AND m.user_deleted_at IS NULL\n    AND m.mod_deleted_at IS NULL\n    AND NOT m.is_intermediate_system_file\nORDER BY m.id ASC\nLIMIT ?\n      ",
   "describe": {
     "columns": [
       {
@@ -85,6 +85,16 @@
       },
       {
         "ordinal": 8,
+        "name": "maybe_thumbnail_version: u8",
+        "type_info": {
+          "type": "Tiny",
+          "flags": "UNSIGNED",
+          "char_set": 63,
+          "max_size": 3
+        }
+      },
+      {
+        "ordinal": 9,
         "name": "maybe_file_cover_image_public_bucket_hash",
         "type_info": {
           "type": "VarString",
@@ -94,7 +104,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "maybe_file_cover_image_public_bucket_prefix",
         "type_info": {
           "type": "VarString",
@@ -104,7 +114,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "maybe_file_cover_image_public_bucket_extension",
         "type_info": {
           "type": "VarString",
@@ -114,7 +124,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "maybe_origin_filename",
         "type_info": {
           "type": "VarString",
@@ -124,7 +134,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "maybe_duration_millis: u64",
         "type_info": {
           "type": "Long",
@@ -134,7 +144,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "created_at",
         "type_info": {
           "type": "Timestamp",
@@ -144,7 +154,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "updated_at",
         "type_info": {
           "type": "Timestamp",
@@ -171,9 +181,10 @@
       true,
       true,
       true,
+      true,
       false,
       false
     ]
   },
-  "hash": "cd04f4f7b48ae9da53b6a210111f8e3edff94dee30263e22b45d5e29dbe9245a"
+  "hash": "79f08e53fdacb526524810f481d22ca169b9f35e8874ed898b63cd2ba4b7453d"
 }

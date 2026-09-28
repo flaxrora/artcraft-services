@@ -20,6 +20,7 @@ use utoipa::{IntoParams, ToSchema};
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::user_details_lite::UserDetailsLight;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::endpoints::media_files::helpers::get_scoped_engine_categories::get_scoped_engine_categories;
@@ -28,6 +29,7 @@ use crate::http_server::endpoints::media_files::helpers::get_scoped_media_types:
 use crate::http_server::web_utils::bucket_urls::bucket_url_string_from_media_path::bucket_url_string_from_media_path;
 use crate::http_server::web_utils::response_error_helpers::to_simple_json_error;
 use crate::state::server_state::ServerState;
+use crate::util::lookup::lookup_video_thumbnail_info_by_tokens::lookup_video_thumbnail_info_by_tokens;
 use crate::util::allowed_explore_media_access::allowed_explore_media_access;
 
 #[derive(Deserialize, ToSchema, IntoParams)]
@@ -183,6 +185,13 @@ pub async fn search_featured_media_files_handler(
     }
   };
 
+  // NB: Search documents don't carry the thumbnail version, so look it up for videos.
+  let video_tokens = results.iter()
+      .filter(|result| result.maybe_public_bucket_extension.as_deref() == Some(".mp4"))
+      .map(|result| result.token.clone())
+      .collect::<Vec<_>>();
+  let thumbnail_infos = lookup_video_thumbnail_info_by_tokens(&video_tokens, &server_state.mysql_pool).await;
+
   let media_domain = get_media_domain(&http_request);
 
   let results = results.into_iter()
@@ -200,7 +209,10 @@ pub async fn search_featured_media_files_handler(
           media_links: MediaLinksBuilder::from_media_path_and_env(
             media_domain, 
             server_state.server_environment,
-            &public_bucket_path
+            &public_bucket_path,
+            thumbnail_infos.get(&result.token)
+                .copied()
+                .unwrap_or_else(|| VideoThumbnailInfo::new(None, result.created_at))
           ),
           public_bucket_path: public_bucket_path
               .get_full_object_path_str()
