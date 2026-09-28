@@ -1,9 +1,10 @@
 use actix_cors::Cors;
+use domains::artcraft::ARTCRAFT_DESKTOP;
 
 pub fn add_artcraft_desktop(cors: Cors, _is_production: bool) -> Cors {
   cors
       // Stable identity sent by the Artcraft native HTTP bridge (dev and packaged apps).
-      .allowed_origin("https://desktop.getartcraft.com")
+      .allowed_origin(ARTCRAFT_DESKTOP.https_link_without_path())
 }
 
 #[cfg(test)]

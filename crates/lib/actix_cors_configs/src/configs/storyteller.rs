@@ -1,19 +1,24 @@
 use actix_cors::Cors;
 
 use crate::util::netlify_branch_domain_matches::netlify_branch_domain_matches;
+use domains::storyteller::STORYTELLER;
+use domains::storyteller::STORYTELLER_API;
+use domains::storyteller::STORYTELLER_ENGINE;
+use domains::storyteller::STORYTELLER_STAGING;
+use domains::storyteller::STORYTELLER_STUDIO;
 
 pub fn add_storyteller(cors: Cors, is_production: bool) -> Cors {
   if is_production {
     cors
         // Storyteller Engine (Production)
-        .allowed_origin("https://engine.storyteller.ai")
+        .allowed_origin(STORYTELLER_ENGINE.https_link_without_path())
         // Storyteller Studio (Production)
-        .allowed_origin("https://studio.storyteller.ai")
+        .allowed_origin(STORYTELLER_STUDIO.https_link_without_path())
         // Storyteller.ai (Production)
-        .allowed_origin("https://api.storyteller.ai")
-        .allowed_origin("https://storyteller.ai")
+        .allowed_origin(STORYTELLER_API.https_link_without_path())
+        .allowed_origin(STORYTELLER.https_link_without_path())
         // Storyteller.ai (Staging)
-        .allowed_origin("https://staging.storyteller.ai")
+        .allowed_origin(STORYTELLER_STAGING.https_link_without_path())
         // Allow Netlify domains within "storyteller-ai" project.
         .allowed_origin_fn(|origin, _req_head| {
           netlify_branch_domain_matches(origin, "storyteller-ai.netlify.app")

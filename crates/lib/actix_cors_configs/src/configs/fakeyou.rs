@@ -1,17 +1,21 @@
 use actix_cors::Cors;
 use log::warn;
 use url::{Host, Url};
+use domains::fakeyou::FAKEYOU;
+use domains::fakeyou::FAKEYOU_API;
+use domains::fakeyou::FAKEYOU_ENGINE;
+use domains::fakeyou::FAKEYOU_STAGING;
 
 pub fn add_fakeyou(cors: Cors, is_production: bool) -> Cors {
   if is_production {
     cors
         // Storyteller Engine (Production)
-        .allowed_origin("https://engine.fakeyou.com")
+        .allowed_origin(FAKEYOU_ENGINE.https_link_without_path())
         // FakeYou (Production)
-        .allowed_origin("https://api.fakeyou.com")
-        .allowed_origin("https://fakeyou.com")
+        .allowed_origin(FAKEYOU_API.https_link_without_path())
+        .allowed_origin(FAKEYOU.https_link_without_path())
         // FakeYou (Staging)
-        .allowed_origin("https://staging.fakeyou.com")
+        .allowed_origin(FAKEYOU_STAGING.https_link_without_path())
         // Allow Netlify domains within "fakeyou" project.
         .allowed_origin_fn(|origin, _req_head| {
           let maybe_url = origin.to_str()
@@ -50,7 +54,7 @@ pub fn add_fakeyou(cors: Cors, is_production: bool) -> Cors {
         .allowed_origin("https://dev.fakeyou.com:7000") // Yarn default port
         .allowed_origin("https://dev.fakeyou.com:7001") // NB: Mac frontend
         // Storyteller Engine (Development)
-        .allowed_origin("https://engine.fakeyou.com") // NB: We use prod for integration testing
+        .allowed_origin(FAKEYOU_ENGINE.https_link_without_path()) // NB: We use prod for integration testing
   }
 }
 

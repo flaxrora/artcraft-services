@@ -1,13 +1,14 @@
 use actix_cors::Cors;
 
 use crate::util::netlify_branch_domain_matches::netlify_branch_domain_matches;
+use domains::storyteller::STORYTELLER_BOARD;
 
 pub fn add_storyteller_board(cors: Cors, _is_production: bool) -> Cors {
   cors
       // Hypothetical domains
       .allowed_origin("https://memeboard.ai")
       .allowed_origin("https://dingboard.ai")
-      .allowed_origin("https://board.storyteller.ai")
+      .allowed_origin(STORYTELLER_BOARD.https_link_without_path())
       // Netlify project
       .allowed_origin_fn(|origin, _req_head| {
         netlify_branch_domain_matches(origin, "storyteller-board.netlify.app")

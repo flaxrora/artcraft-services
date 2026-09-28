@@ -1,16 +1,5 @@
-use once_cell::sync::Lazy;
+use domains::fakeyou::FAKEYOU_CDN;
 use url::Url;
-
-//const FAKEYOU_CDN_STR: &str = "https://storage.googleapis.com/dev-vocodes-public";
-const FAKEYOU_CDN_STR: &str = "https://cdn-2.fakeyou.com";
-
-const STORYTELLER_CDN_STR: &str = "https://cdn-2.fakeyou.com";
-
-const FAKEYOU_CDN: Lazy<Url> = Lazy::new(|| Url::parse(FAKEYOU_CDN_STR)
-    .expect("should never fail"));
-
-const STORYTELLER_CDN: Lazy<Url> = Lazy::new(|| Url::parse(STORYTELLER_CDN_STR)
-    .expect("should never fail"));
 
 /// Which domain to generate CDN, etc. links for.
 #[derive(Copy, Clone, Debug)]
@@ -22,14 +11,13 @@ pub enum MediaDomain {
 impl MediaDomain {
   pub fn new_cdn_url(&self) -> Url {
     match self {
-      MediaDomain::FakeYou => FAKEYOU_CDN.clone(),
-      MediaDomain::Storyteller => STORYTELLER_CDN.clone(),
+      // NB: Storyteller media is served from the FakeYou CDN too.
+      MediaDomain::FakeYou | MediaDomain::Storyteller => FAKEYOU_CDN.https_url().clone(),
     }
   }
   pub fn cdn_url_str(&self) -> &'static str {
     match self {
-      MediaDomain::FakeYou => FAKEYOU_CDN_STR,
-      MediaDomain::Storyteller => STORYTELLER_CDN_STR,
+      MediaDomain::FakeYou | MediaDomain::Storyteller => FAKEYOU_CDN.https_link_without_path(),
     }
   }
 }

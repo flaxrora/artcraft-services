@@ -1,11 +1,12 @@
 use actix_cors::Cors;
 
 use crate::util::netlify_branch_domain_matches::netlify_branch_domain_matches;
+use domains::storyteller::STORYTELLER_RENDER;
 
 pub fn add_storyteller_render(cors: Cors, _is_production: bool) -> Cors {
   cors
       // Hypothetical domains
-      .allowed_origin("https://render.storyteller.ai")
+      .allowed_origin(STORYTELLER_RENDER.https_link_without_path())
       // Netlify project
       .allowed_origin_fn(|origin, _req_head| {
         netlify_branch_domain_matches(origin, "storyteller-render.netlify.app")
