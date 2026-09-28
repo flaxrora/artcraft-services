@@ -1,11 +1,15 @@
 use actix_cors::Cors;
 
 use crate::util::netlify_branch_domain_matches::netlify_branch_domain_matches;
+use domains::storyteller::STORYTELLER_ANIMATE;
+use domains::storyteller::STORYTELLER_STUDIO;
+use domains::storyteller::STORYTELLER_STUDIO_STAGING;
+use domains::storyteller::STORYTELLER_STUDIO_TESTING;
 
 pub fn add_storyteller_studio(cors: Cors, _is_production: bool) -> Cors {
-  cors.allowed_origin("https://studio.storyteller.ai")
-      .allowed_origin("https://studio-staging.studio.storyteller.ai")
-      .allowed_origin("https://studio-testing.studio.storyteller.ai")
+  cors.allowed_origin(STORYTELLER_STUDIO.https_link_without_path())
+      .allowed_origin(STORYTELLER_STUDIO_STAGING.https_link_without_path())
+      .allowed_origin(STORYTELLER_STUDIO_TESTING.https_link_without_path())
       .allowed_origin_fn(|origin, _req_head| {
         netlify_branch_domain_matches(origin, "storytellerstudio.netlify.app")
       })
@@ -13,7 +17,7 @@ pub fn add_storyteller_studio(cors: Cors, _is_production: bool) -> Cors {
         netlify_branch_domain_matches(origin, "pipeline-gottagofast.netlify.app")
       })
       .allowed_origin("http://localhost:5173")
-      .allowed_origin("https://animate.storyteller.ai") // NB: Gen2 Studio
+      .allowed_origin(STORYTELLER_ANIMATE.https_link_without_path()) // NB: Gen2 Studio
 }
 
 #[cfg(test)]

@@ -34,6 +34,7 @@ workspace-build-acceleration.workspace = true
 # Internal
 actix_artcraft.workspace = true
 actix_cors_configs = { path = "../../../lib/actix_cors_configs" }
+domains = { workspace = true, features = ["url"] }
 actix_helpers.workspace = true
 artcraft_api_defs.workspace = true
 artcraft_api_keys.workspace = true

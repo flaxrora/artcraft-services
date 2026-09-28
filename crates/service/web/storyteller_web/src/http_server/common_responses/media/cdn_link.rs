@@ -1,43 +1,56 @@
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
-use once_cell::sync::Lazy;
+use domains::Domain;
+use domains::cdn::{DEVELOPMENT_CDN, FAKEYOU_CDN};
 use server_environment::ServerEnvironment;
 use url::Url;
 
-const FAKEYOU_CDN_STR: &str = "https://cdn-2.fakeyou.com";
-const STORYTELLER_CDN_STR: &str = "https://cdn-2.fakeyou.com";
+// NB: Storyteller media is served from the FakeYou CDN too.
+const FAKEYOU_PRODUCTION: Domain = FAKEYOU_CDN;
+const STORYTELLER_PRODUCTION: Domain = FAKEYOU_CDN;
 
-const FAKEYOU_DEVELOPMENT_CDN_STR: &str = "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev";
-const STORYTELLER_DEVELOPMENT_CDN_STR: &str = "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev";
-
-
-const FAKEYOU_CDN: Lazy<Url> = Lazy::new(|| Url::parse(FAKEYOU_CDN_STR)
-    .expect("should never fail"));
-
-const STORYTELLER_CDN: Lazy<Url> = Lazy::new(|| Url::parse(STORYTELLER_CDN_STR)
-    .expect("should never fail"));
-
-const FAKEYOU_DEVELOPMENT_CDN: Lazy<Url> = Lazy::new(|| Url::parse(FAKEYOU_DEVELOPMENT_CDN_STR)
-    .expect("should never fail"));
-
-const STORYTELLER_DEVELOPMENT_CDN: Lazy<Url> = Lazy::new(|| Url::parse(STORYTELLER_DEVELOPMENT_CDN_STR)
-    .expect("should never fail"));
-
+const FAKEYOU_DEVELOPMENT: Domain = DEVELOPMENT_CDN;
+const STORYTELLER_DEVELOPMENT: Domain = DEVELOPMENT_CDN;
 
 // TODO(bt,2025-01-31): Perhaps this should be config driven and configurable at runtime instead of hardcoded.
 pub fn get_cdn_host(media_domain: MediaDomain, server_environment: ServerEnvironment) -> &'static str {
-  match (media_domain, server_environment) {
-    (MediaDomain::FakeYou, ServerEnvironment::Development) => FAKEYOU_DEVELOPMENT_CDN_STR,
-    (MediaDomain::FakeYou, ServerEnvironment::Production) => FAKEYOU_CDN_STR,
-    (MediaDomain::Storyteller, ServerEnvironment::Development) => STORYTELLER_DEVELOPMENT_CDN_STR,
-    (MediaDomain::Storyteller, ServerEnvironment::Production) => STORYTELLER_CDN_STR,
-  }
+  cdn_domain(media_domain, server_environment).https_link_without_path()
 }
 
 pub fn new_cdn_url(media_domain: MediaDomain, server_environment: ServerEnvironment) -> Url {
+  cdn_domain(media_domain, server_environment).https_url().clone()
+}
+
+fn cdn_domain(media_domain: MediaDomain, server_environment: ServerEnvironment) -> Domain {
   match (media_domain, server_environment) {
-    (MediaDomain::FakeYou, ServerEnvironment::Development) => FAKEYOU_DEVELOPMENT_CDN.clone(),
-    (MediaDomain::FakeYou, ServerEnvironment::Production) => FAKEYOU_CDN.clone(),
-    (MediaDomain::Storyteller, ServerEnvironment::Development) => STORYTELLER_DEVELOPMENT_CDN.clone(),
-    (MediaDomain::Storyteller, ServerEnvironment::Production) => STORYTELLER_CDN.clone(),
+    (MediaDomain::FakeYou, ServerEnvironment::Development) => FAKEYOU_DEVELOPMENT,
+    (MediaDomain::FakeYou, ServerEnvironment::Production) => FAKEYOU_PRODUCTION,
+    (MediaDomain::Storyteller, ServerEnvironment::Development) => STORYTELLER_DEVELOPMENT,
+    (MediaDomain::Storyteller, ServerEnvironment::Production) => STORYTELLER_PRODUCTION,
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::http_server::common_responses::media::cdn_link::{get_cdn_host, new_cdn_url};
+  use crate::http_server::common_responses::media::media_domain::MediaDomain;
+  use server_environment::ServerEnvironment;
+
+  const PROD_CDN: &str = "https://cdn-2.fakeyou.com";
+  const DEV_CDN: &str = "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev";
+
+  #[test]
+  fn cdn_hosts() {
+    assert_eq!(get_cdn_host(MediaDomain::FakeYou, ServerEnvironment::Production), PROD_CDN);
+    assert_eq!(get_cdn_host(MediaDomain::Storyteller, ServerEnvironment::Production), PROD_CDN);
+    assert_eq!(get_cdn_host(MediaDomain::FakeYou, ServerEnvironment::Development), DEV_CDN);
+    assert_eq!(get_cdn_host(MediaDomain::Storyteller, ServerEnvironment::Development), DEV_CDN);
+  }
+
+  #[test]
+  fn cdn_urls() {
+    assert_eq!(new_cdn_url(MediaDomain::FakeYou, ServerEnvironment::Production).as_str(), "https://cdn-2.fakeyou.com/");
+    assert_eq!(new_cdn_url(MediaDomain::Storyteller, ServerEnvironment::Production).as_str(), "https://cdn-2.fakeyou.com/");
+    assert_eq!(new_cdn_url(MediaDomain::FakeYou, ServerEnvironment::Development).as_str(), "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev/");
+    assert_eq!(new_cdn_url(MediaDomain::Storyteller, ServerEnvironment::Development).as_str(), "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev/");
   }
 }
