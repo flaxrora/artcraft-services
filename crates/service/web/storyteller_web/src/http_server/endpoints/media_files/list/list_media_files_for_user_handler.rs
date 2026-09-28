@@ -3,7 +3,6 @@ use std::sync::Arc;
 use actix_web::web::{Json, Path, Query};
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse};
 use artcraft_api_defs::common::responses::media_links::MediaLinks;
-use bucket_paths::legacy::typified_paths::public::media_files::bucket_file_path::MediaFileBucketPath;
 use chrono::{DateTime, Utc};
 use enums::by_table::media_files::media_file_animation_type::MediaFileAnimationType;
 use enums::by_table::media_files::media_file_class::MediaFileClass;
@@ -15,14 +14,17 @@ use enums::common::view_as::ViewAs;
 use enums::common::visibility::Visibility;
 use enums::no_table::style_transfer::style_transfer_name::StyleTransferName;
 use enums::by_table::media_files::media_file_origin_model_type::MediaFileOriginModelType;
-use log::{info, warn};
+use log::info;
+use std::time::Instant;
 use mysql_queries::queries::media_files::list::list_media_files_for_user::{list_media_files_for_user, ListMediaFileForUserArgs};
+use mysql_queries::queries::media_files::list::count_media_files_for_user::{count_media_files_for_user, CountMediaFilesForUserArgs};
+use mysql_queries::queries::media_files::list::user_media_file_filters::UserMediaFileFilters;
+use super::user_media_file_response::{build_user_media_file_response, UserMediaFileResponseArgs};
 use tokens::tokens::media_files::MediaFileToken;
 use utoipa::{IntoParams, ToSchema};
 use tokens::tokens::prompts::PromptToken;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
-use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
 use crate::http_server::common_responses::media_file_origin_details::MediaFileOriginDetails;
 use crate::http_server::common_responses::pagination_page::PaginationPage;
 use crate::http_server::common_responses::simple_entity_stats::SimpleEntityStats;
@@ -30,7 +32,6 @@ use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_m
 use crate::http_server::endpoints::media_files::helpers::get_scoped_engine_categories::get_scoped_engine_categories;
 use crate::http_server::endpoints::media_files::helpers::get_scoped_media_classes::get_scoped_media_classes;
 use crate::http_server::endpoints::media_files::helpers::get_scoped_media_types::get_scoped_media_types;
-use crate::http_server::web_utils::bucket_urls::bucket_url_string_from_media_path::bucket_url_string_from_media_path;
 use crate::state::server_state::ServerState;
 use crate::util::allowed_studio_access::allowed_studio_access;
 
@@ -238,117 +239,48 @@ pub async fn list_media_files_for_user_handler(
   let mut maybe_filter_media_classes  = get_scoped_media_classes(query.filter_media_classes.as_deref());
   let mut maybe_filter_engine_categories = get_scoped_engine_categories(query.filter_engine_categories.as_deref());
 
-  info!("Querying media files for user: {:?} type: {:?} as: {:?}", path.username, maybe_filter_media_types, view_as);
-
-  let query_results = list_media_files_for_user(ListMediaFileForUserArgs {
+  let filters = UserMediaFileFilters {
     username: &path.username,
     maybe_filter_media_types: maybe_filter_media_types.as_ref(),
     maybe_filter_media_classes: maybe_filter_media_classes.as_ref(),
     maybe_filter_engine_categories: maybe_filter_engine_categories.as_ref(),
     include_user_uploads: query.include_user_uploads.unwrap_or(false),
-    page_size,
-    page_index,
-    sort_ascending,
     view_as,
-    mysql_pool: &server_state.mysql_pool,
-  }).await;
-
-  let results_page = match query_results {
-    Ok(results) => results,
-    Err(e) => {
-      warn!("Query error: {:?}", e);
-      return Err(CommonWebError::from_anyhow_error(e));
-    }
   };
+  let count_started = Instant::now();
+  let total_count = count_media_files_for_user(CountMediaFilesForUserArgs {
+    filters,
+    mysql_executor: &server_state.mysql_pool,
+  }).await?;
+  let count_ms = count_started.elapsed().as_millis();
+  let page_started = Instant::now();
+  let records = list_media_files_for_user(ListMediaFileForUserArgs {
+    filters,
+    limit: page_size,
+    offset: page_index * page_size,
+    sort_ascending,
+    mysql_executor: &server_state.mysql_pool,
+  }).await?;
+  info!("Listed legacy user media: username={} page={} count_ms={} page_ms={}",
+    path.username, page_index, count_ms, page_started.elapsed().as_millis());
 
   let media_domain = get_media_domain(&http_request);
 
-  let results = results_page.records.into_iter()
-      .filter(|record| {
-        if is_allowed_studio_access {
-          return true;
-        }
-        // Don't allow access to certain media types.
-        match record.media_type {
-          MediaFileType::Bvh |
-          MediaFileType::Fbx |
-          MediaFileType::Glb |
-          MediaFileType::Gltf |
-          MediaFileType::SceneRon => return false,
-          _ => {},
-        }
-        // // Don't allow access to certain products.
-        // match record.origin_product_category {
-        //   MediaFileOriginProductCategory::VideoFilter |
-        //   MediaFileOriginProductCategory::Mocap |
-        //   MediaFileOriginProductCategory::Workflow => return false,
-        //   _ => {},
-        // }
-        true
-      })
-      .map(|record| {
-        let public_bucket_path = MediaFileBucketPath::from_object_hash(
-          &record.public_bucket_directory_hash,
-          record.maybe_public_bucket_prefix.as_deref(),
-          record.maybe_public_bucket_extension.as_deref(),
-        );
-        MediaFileForUserListItem {
-          token: record.token.clone(),
-          media_class: record.media_class,
-          media_type: record.media_type,
-          maybe_engine_category: record.maybe_engine_category,
-          maybe_animation_type: record.maybe_animation_type,
-          origin: MediaFileOriginDetails::from_db_fields_str(
-            record.origin_category,
-            record.origin_product_category,
-            record.maybe_origin_model_type,
-            record.maybe_origin_model_token.as_deref(),
-            record.maybe_origin_model_title.as_deref()),
-          origin_category: record.origin_category,
-          origin_product_category: record.origin_product_category,
-          maybe_origin_model_type: record.maybe_origin_model_type,
-          maybe_origin_model_token: record.maybe_origin_model_token,
-          media_links: MediaLinksBuilder::from_media_path_and_env(
-            media_domain, server_state.server_environment, &public_bucket_path),
-          maybe_prompt_token: record.maybe_prompt_token,
-          public_bucket_path: public_bucket_path
-              .get_full_object_path_str()
-              .to_string(),
-          public_bucket_url: bucket_url_string_from_media_path(&public_bucket_path, media_domain, server_state.server_environment),
-          cover_image: MediaFileCoverImageDetails::from_optional_db_fields(
-            &record.token,
-            media_domain,
-            server_state.server_environment,
-            record.maybe_file_cover_image_public_bucket_hash.as_deref(),
-            record.maybe_file_cover_image_public_bucket_prefix.as_deref(),
-            record.maybe_file_cover_image_public_bucket_extension.as_deref(),
-          ),
-          creator_set_visibility: record.creator_set_visibility,
-          is_user_upload: record.is_user_upload,
-          is_intermediate_system_file: record.is_intermediate_system_file,
-          maybe_title: record.maybe_title,
-          maybe_text_transcript: record.maybe_text_transcript,
-          maybe_style_name: record.maybe_prompt_args
-              .as_ref()
-              .and_then(|args| args.style_name.as_ref())
-              .and_then(|style| style.to_style_name()),
-          maybe_duration_millis: record.maybe_duration_millis,
-          stats: SimpleEntityStats {
-            positive_rating_count: record.maybe_ratings_positive_count.unwrap_or(0),
-            bookmark_count: record.maybe_bookmark_count.unwrap_or(0),
-          },
-          created_at: record.created_at,
-          updated_at: record.updated_at,
-        }
-      })
-      .collect::<Vec<_>>();
+  let results = build_user_media_file_response(UserMediaFileResponseArgs {
+    records,
+    is_allowed_studio_access,
+    media_domain,
+    server_environment: server_state.server_environment,
+  });
 
   Ok(Json(ListMediaFilesForUserSuccessResponse {
     success: true,
     results,
     pagination: PaginationPage {
-      current: results_page.current_page,
-      total_page_count: results_page.total_page_count,
+      current: page_index,
+      // Preserve v1's historical calculation, including exact multiples.
+      // A pagination behavior change belongs in a new endpoint version.
+      total_page_count: 1 + (total_count / page_size as i64) as usize,
     }
   }))
 }

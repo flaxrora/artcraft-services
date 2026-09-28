@@ -548,7 +548,7 @@ fn fixture_video_bytes(duration_millis: u64) -> Vec<u8> {
 /// the stub Kinovi server. Everything else is inert dummy configuration:
 /// Redis/Elasticsearch/Stripe/bucket clients are constructed lazily and are
 /// never called on the video generate path.
-fn build_test_server_state(pool: MySqlPool, media_cdn_override_url: String) -> ServerState {
+pub(crate) fn build_test_server_state(pool: MySqlPool, media_cdn_override_url: String) -> ServerState {
   let session_cookie_manager = HttpUserSessionManager::new(TEST_COOKIE_DOMAIN, TEST_COOKIE_SECRET)
     .expect("session cookie manager");
   let avt_cookie_manager =
