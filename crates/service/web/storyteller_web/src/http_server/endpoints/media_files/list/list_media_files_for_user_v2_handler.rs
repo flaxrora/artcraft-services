@@ -3,15 +3,17 @@ use std::time::Instant;
 
 use actix_web::web::{Json, Path, Query};
 use actix_web::{web, HttpRequest};
+use artcraft_api_defs::media_file::list::list_media_files_for_user_v2::{
+  ListMediaFilesForUserV2PathInfo, ListMediaFilesForUserV2QueryParams,
+  ListMediaFilesForUserV2SuccessResponse, UserMediaFileV2Pagination,
+};
 use enums::common::view_as::ViewAs;
 use log::info;
 use mysql_queries::queries::media_files::list::list_media_files_for_user::{
   list_media_files_for_user, ListMediaFileForUserArgs,
 };
 use mysql_queries::queries::media_files::list::user_media_file_filters::UserMediaFileFilters;
-use utoipa::{IntoParams, ToSchema};
 
-use super::list_media_files_for_user_handler::MediaFileForUserListItem;
 use super::user_media_file_response::{build_user_media_file_response, UserMediaFileResponseArgs};
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
@@ -20,67 +22,6 @@ use crate::http_server::endpoints::media_files::helpers::get_scoped_media_classe
 use crate::http_server::endpoints::media_files::helpers::get_scoped_media_types::get_scoped_media_types;
 use crate::state::server_state::ServerState;
 use crate::util::allowed_studio_access::allowed_studio_access;
-
-#[derive(Deserialize, ToSchema)]
-pub struct ListMediaFilesForUserV2PathInfo {
-  username: String,
-}
-
-#[derive(Deserialize, ToSchema, IntoParams)]
-pub struct ListMediaFilesForUserV2QueryParams {
-  pub sort_ascending: Option<bool>,
-  pub page_size: Option<usize>,
-  pub page_index: Option<usize>,
-
-  /// NB: This can be one (or more comma-separated values) from `MediaFileClass`,
-  /// which are the broad category of media files: image, video, etc.
-  ///
-  /// Usage:
-  ///   - `?filter_media_classes=audio`
-  ///   - `?filter_media_classes=image,video`
-  ///   - `?filter_media_classes=dimensional`
-  ///   - etc.
-  pub filter_media_classes: Option<String>,
-
-  /// NB: This can be one (or more comma-separated values) from `MediaFileType`,
-  /// which are mimetype-like / format-like categories of media files: glb, gltf,
-  /// scene_json, jpg, png, mp4, wav, etc.
-  ///
-  /// Usage:
-  ///   - `?filter_media_type=scene_json`
-  ///   - `?filter_media_type=glb,gltf,fbx`
-  ///   - `?filter_media_type=pmd,vmd,pmx`
-  ///   - `?filter_media_type=jpg,png,gif`
-  ///   - `?filter_media_type=wav,mp3`
-  ///   - `?filter_media_type=mp4`
-  ///   - etc.
-  pub filter_media_type: Option<String>,
-
-  /// NB: This can be one (or more comma-separated values) from `MediaFileEngineCategory`.
-  ///
-  /// Usage:
-  ///   - `?filter_engine_categories=scene`
-  ///   - `?filter_engine_categories=animation,character,object`
-  ///   - etc.
-  pub filter_engine_categories: Option<String>,
-
-  /// Include user uploaded files in the results.
-  /// By default, we do not return them unless this flag is set to true.
-  pub include_user_uploads: Option<bool>,
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct ListMediaFilesForUserV2SuccessResponse {
-  pub success: bool,
-  pub results: Vec<MediaFileForUserListItem>,
-  pub pagination: UserMediaFileV2Pagination,
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct UserMediaFileV2Pagination {
-  pub current: usize,
-  pub has_more: bool,
-}
 
 /// Faster user-media listing for infinite scroll.
 ///

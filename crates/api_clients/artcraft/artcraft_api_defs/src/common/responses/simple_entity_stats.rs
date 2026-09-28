@@ -1,9 +1,10 @@
 use serde_derive::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 // TODO(bt,2025-08-20): Replace the storyteller-web version of this.
 
 /// Simple stats that can be attached to any entity
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct SimpleEntityStats {
   /// Number of positive ratings (or "likes") for this item
   pub positive_rating_count: u32,
