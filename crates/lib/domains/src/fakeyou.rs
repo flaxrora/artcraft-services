@@ -1,4 +1,4 @@
-//! FakeYou domains. The FakeYou CDN lives in [`crate::cdn`].
+//! FakeYou domains.
 
 use crate::{Domain, domain};
 
@@ -16,6 +16,13 @@ pub const FAKEYOU_STAGING: Domain = domain!("staging.fakeyou.com");
 /// Local development hosts (resolve to a developer machine).
 pub const FAKEYOU_DEV: Domain = domain!("dev.fakeyou.com");
 pub const FAKEYOU_DEV_PROXY: Domain = domain!("devproxy.fakeyou.com");
+
+/// Production media CDN. Serves both FakeYou and Storyteller media.
+pub const FAKEYOU_CDN: Domain = domain!("cdn-2.fakeyou.com");
+
+/// Development media CDN (a Cloudflare R2 public bucket). Serves both FakeYou
+/// and Storyteller development media, like `FAKEYOU_CDN` does in production.
+pub const FAKEYOU_DEV_CDN: Domain = domain!("pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev");
 
 #[cfg(test)]
 mod tests {
@@ -43,5 +50,28 @@ mod tests {
   fn development() {
     assert_eq!(FAKEYOU_DEV.bare_domain(), "dev.fakeyou.com");
     assert_eq!(FAKEYOU_DEV_PROXY.bare_domain(), "devproxy.fakeyou.com");
+  }
+
+  mod cdn {
+    use super::*;
+
+    #[test]
+    fn production() {
+      assert_eq!(FAKEYOU_CDN.bare_domain(), "cdn-2.fakeyou.com");
+      assert_eq!(FAKEYOU_CDN.https_link_without_path(), "https://cdn-2.fakeyou.com");
+      assert_eq!(FAKEYOU_CDN.https_link_with_root_path(), "https://cdn-2.fakeyou.com/");
+    }
+
+    #[test]
+    fn development() {
+      assert_eq!(FAKEYOU_DEV_CDN.https_link_without_path(), "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev");
+    }
+
+    #[cfg(feature = "url")]
+    #[test]
+    fn urls() {
+      assert_eq!(FAKEYOU_CDN.https_url().as_str(), "https://cdn-2.fakeyou.com/");
+      assert_eq!(FAKEYOU_DEV_CDN.https_url().as_str(), "https://pub-c8a4a5bdbdb048f286b77bdf9f786ff2.r2.dev/");
+    }
   }
 }

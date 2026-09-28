@@ -67,6 +67,7 @@ members = [
   "crates/lib/files/zip_archives",
   "crates/lib/http_headers",
   "crates/lib/jobs_common",
+  "crates/lib/domains",
   "crates/lib/jwt_light",
   "crates/lib/opaque_cursors",
   "crates/lib/jwt_signer",
@@ -252,6 +253,7 @@ grok_api_client = { path = "crates/api_clients/grok_api_client" }
 rootly_client = { path = "crates/api_clients/rootly_client" }
 rootly_config = { path = "crates/schema/config/rootly_config" }
 shared_env_var_config = { path = "crates/schema/config/shared_env_var_config" }
+domains = { path = "crates/lib/domains" }
 http_headers = { path = "crates/lib/http_headers" }
 images = { path = "crates/lib/files/images" }
 jobs_common = { path = "crates/lib/jobs_common" }

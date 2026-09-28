@@ -9,7 +9,6 @@
 //! Enable the `url` feature for `Domain::https_url()`, a cached `&'static url::Url`.
 
 pub mod artcraft;
-pub mod cdn;
 pub mod fakeyou;
 pub mod storyteller;
 

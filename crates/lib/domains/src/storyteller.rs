@@ -1,4 +1,4 @@
-//! Storyteller domains. The Storyteller CDN lives in [`crate::cdn`].
+//! Storyteller domains. Storyteller media is served from `fakeyou::FAKEYOU_CDN`.
 
 use crate::{Domain, domain};
 
@@ -29,6 +29,9 @@ pub const STORYTELLER_3D: Domain = domain!("3d.storyteller.ai");
 /// Local development hosts (resolve to a developer machine).
 pub const STORYTELLER_DEV: Domain = domain!("dev.storyteller.ai");
 pub const STORYTELLER_DEV_PROXY: Domain = domain!("devproxy.storyteller.ai");
+
+/// Storyteller Studio static assets.
+pub const STORYTELLER_CDN: Domain = domain!("cdn.storyteller.ai");
 
 #[cfg(test)]
 mod tests {
@@ -65,5 +68,10 @@ mod tests {
   fn development() {
     assert_eq!(STORYTELLER_DEV.bare_domain(), "dev.storyteller.ai");
     assert_eq!(STORYTELLER_DEV_PROXY.bare_domain(), "devproxy.storyteller.ai");
+  }
+
+  #[test]
+  fn cdn() {
+    assert_eq!(STORYTELLER_CDN.https_link_without_path(), "https://cdn.storyteller.ai");
   }
 }

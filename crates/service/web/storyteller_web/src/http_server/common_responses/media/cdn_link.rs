@@ -1,6 +1,6 @@
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use domains::Domain;
-use domains::cdn::{DEVELOPMENT_CDN, FAKEYOU_CDN};
+use domains::fakeyou::{FAKEYOU_CDN, FAKEYOU_DEV_CDN};
 use server_environment::ServerEnvironment;
 use url::Url;
 
@@ -8,8 +8,8 @@ use url::Url;
 const FAKEYOU_PRODUCTION: Domain = FAKEYOU_CDN;
 const STORYTELLER_PRODUCTION: Domain = FAKEYOU_CDN;
 
-const FAKEYOU_DEVELOPMENT: Domain = DEVELOPMENT_CDN;
-const STORYTELLER_DEVELOPMENT: Domain = DEVELOPMENT_CDN;
+const FAKEYOU_DEVELOPMENT: Domain = FAKEYOU_DEV_CDN;
+const STORYTELLER_DEVELOPMENT: Domain = FAKEYOU_DEV_CDN;
 
 // TODO(bt,2025-01-31): Perhaps this should be config driven and configurable at runtime instead of hardcoded.
 pub fn get_cdn_host(media_domain: MediaDomain, server_environment: ServerEnvironment) -> &'static str {

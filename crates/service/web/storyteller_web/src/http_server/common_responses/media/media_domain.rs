@@ -1,4 +1,4 @@
-use domains::cdn::FAKEYOU_CDN;
+use domains::fakeyou::FAKEYOU_CDN;
 use url::Url;
 
 /// Which domain to generate CDN, etc. links for.
