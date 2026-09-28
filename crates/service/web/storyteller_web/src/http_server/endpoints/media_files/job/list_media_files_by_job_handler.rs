@@ -18,6 +18,7 @@ use utoipa::ToSchema;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_file_cover_image_details_builder::MediaFileCoverImageDetailsBuilder;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::user_lookup::api_or_web_session::require_api_or_web_session::require_api_or_web_session;
 use crate::state::server_state::ServerState;
@@ -93,6 +94,7 @@ pub async fn list_media_files_by_job_handler(
             media_domain,
             server_state.server_environment,
             &public_bucket_path,
+            VideoThumbnailInfo::new(record.maybe_thumbnail_version, record.created_at),
           ),
           cover_image: MediaFileCoverImageDetailsBuilder::from_optional_db_fields(
             &record.token,

@@ -14,6 +14,7 @@ use server_environment::ServerEnvironment;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::media_file_origin_details::{MediaFileModelDetails, MediaFileOriginDetails};
 use crate::http_server::web_utils::bucket_urls::bucket_url_string_from_media_path::bucket_url_string_from_media_path;
 
@@ -79,7 +80,11 @@ pub(super) fn build_user_media_file_response(args: UserMediaFileResponseArgs) ->
         origin_product_category: record.origin_product_category,
         maybe_origin_model_type: record.maybe_origin_model_type,
         maybe_origin_model_token: record.maybe_origin_model_token,
-        media_links: MediaLinksBuilder::from_media_path_and_env(media_domain, server_environment, &public_bucket_path),
+        media_links: MediaLinksBuilder::from_media_path_and_env(
+          media_domain,
+          server_environment,
+          &public_bucket_path,
+          VideoThumbnailInfo::new(record.maybe_thumbnail_version, record.created_at)),
         maybe_prompt_token: record.maybe_prompt_token,
         public_bucket_path: public_bucket_path.get_full_object_path_str().to_string(),
         public_bucket_url: bucket_url_string_from_media_path(&public_bucket_path, media_domain, server_environment),

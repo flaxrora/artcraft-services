@@ -98,6 +98,7 @@ SELECT
   mf.public_bucket_directory_hash,
   mf.maybe_public_bucket_prefix,
   mf.maybe_public_bucket_extension,
+  mf.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
   cover.public_bucket_directory_hash as `maybe_cover_public_bucket_directory_hash?`,
   cover.maybe_public_bucket_prefix as `maybe_cover_public_bucket_prefix?`,
@@ -168,6 +169,7 @@ SELECT
   mf.public_bucket_directory_hash,
   mf.maybe_public_bucket_prefix,
   mf.maybe_public_bucket_extension,
+  mf.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
   cover.public_bucket_directory_hash as `maybe_cover_public_bucket_directory_hash?`,
   cover.maybe_public_bucket_prefix as `maybe_cover_public_bucket_prefix?`,

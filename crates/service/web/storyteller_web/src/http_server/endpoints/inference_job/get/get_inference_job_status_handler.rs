@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::inference_job::utils::estimates::estimate_job_progress::estimate_job_progress;
 use crate::http_server::endpoints::tts::enqueue_infer_tts_handler::enqueue_infer_tts_handler::SYNTHETIC_INFERENCE_JOB_TOKEN;
 use crate::http_server::endpoints::inference_job::utils::extractors::extract_lipsync_details::extract_lipsync_details;
@@ -242,6 +243,8 @@ fn record_to_payload(
   server_environment: ServerEnvironment,
   media_domain: MediaDomain,
 ) -> InferenceJobStatusResponsePayload {
+  // NB: Copied out so the result closure below doesn't borrow `record` (edition 2018).
+  let job_created_at = record.created_at;
   let inference_category = record.request_details.inference_category;
 
   // NB: Fail open. We don't want to fail the request if we can't extract the args.
@@ -349,7 +352,12 @@ fn record_to_payload(
         media_links: MediaLinksBuilder::from_rooted_path_and_env(
           media_domain,
           server_environment,
-          &public_bucket_media_path
+          &public_bucket_media_path,
+          VideoThumbnailInfo::new(
+            result_details.maybe_media_file_thumbnail_version,
+            // NB: Non-media-file results (legacy tts/vc) have no media file row; they're
+            // never mp4s, so the job's creation time is only a placeholder for them.
+            result_details.maybe_media_file_created_at.unwrap_or(job_created_at))
         ),
         maybe_public_bucket_media_path: Some(public_bucket_media_path),
         maybe_successfully_completed_at: result_details.maybe_successfully_completed_at,

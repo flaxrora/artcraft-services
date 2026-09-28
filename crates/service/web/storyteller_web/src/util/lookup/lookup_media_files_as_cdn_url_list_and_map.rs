@@ -12,6 +12,7 @@ use tokens::tokens::media_files::MediaFileToken;
 
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 
 pub struct MediaFilesAsCdnUrlListAndMap {
@@ -91,7 +92,8 @@ pub async fn lookup_media_files_as_cdn_url_list_and_map(
     let media_links = MediaLinksBuilder::from_media_path_and_env(
       media_domain,
       server_environment,
-      &public_bucket_path);
+      &public_bucket_path,
+      VideoThumbnailInfo::new(file.maybe_thumbnail_version, file.created_at));
 
     token_to_url_map.insert(
       file.token,

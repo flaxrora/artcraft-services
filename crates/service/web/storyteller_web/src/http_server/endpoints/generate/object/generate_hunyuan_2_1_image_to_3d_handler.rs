@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::validations::validate_idempotency_token_format::validate_idempotency_token_format;
 use crate::http_server::web_utils::get_request_platform_type::get_request_platform_type;
@@ -127,7 +128,8 @@ pub async fn generate_hunyuan_2_1_image_to_3d_handler(
   let media_links = MediaLinksBuilder::from_media_path_and_env(
     media_domain, 
     server_state.server_environment, 
-    &bucket_path);
+    &bucket_path,
+    VideoThumbnailInfo::new(media_file.maybe_thumbnail_version, media_file.created_at));
   
   info!("Fal webhook URL: {}", server_state.inference_providers.fal.webhook_url);
   

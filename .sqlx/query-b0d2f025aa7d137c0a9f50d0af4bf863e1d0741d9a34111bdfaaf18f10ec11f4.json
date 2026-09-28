@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "\nSELECT\n    m.id as `id: u64`,\n    m.token as `token: tokens::tokens::media_files::MediaFileToken`,\n\n    m.media_class as `media_class: enums::by_table::media_files::media_file_class::MediaFileClass`,\n    m.media_type as `media_type: enums::by_table::media_files::media_file_type::MediaFileType`,\n\n    m.public_bucket_directory_hash,\n    m.maybe_public_bucket_prefix,\n    m.maybe_public_bucket_extension,\n\n    users.token as `maybe_creator_user_token: tokens::tokens::users::UserToken`,\n    users.username as maybe_creator_username,\n    users.display_name as maybe_creator_display_name,\n    users.email_gravatar_hash as maybe_creator_gravatar_hash,\n\n    media_file_cover_image.public_bucket_directory_hash as maybe_file_cover_image_public_bucket_hash,\n    media_file_cover_image.maybe_public_bucket_prefix as maybe_file_cover_image_public_bucket_prefix,\n    media_file_cover_image.maybe_public_bucket_extension as maybe_file_cover_image_public_bucket_extension,\n\n    m.creator_set_visibility as `creator_set_visibility: enums::common::visibility::Visibility`,\n\n    m.maybe_prompt_token as `maybe_prompt_token: tokens::tokens::prompts::PromptToken`,\n    m.maybe_title,\n\n    m.created_at,\n    m.updated_at\n\nFROM media_files AS m FORCE INDEX (fk_maybe_creator_user_token)\nLEFT OUTER JOIN users\n    ON m.maybe_creator_user_token = users.token\nLEFT OUTER JOIN media_files as media_file_cover_image\n    ON media_file_cover_image.token = m.maybe_cover_image_media_file_token\nWHERE\n    m.maybe_creator_user_token = ?\n    AND m.media_class = ?\n    AND m.user_deleted_at IS NULL\n    AND m.mod_deleted_at IS NULL\n    AND NOT m.is_intermediate_system_file\n    AND m.id > ?\nORDER BY m.id ASC\nLIMIT ?\n      ",
+  "query": "\nSELECT\n    m.id as `id: u64`,\n    m.token as `token: tokens::tokens::media_files::MediaFileToken`,\n\n    m.media_class as `media_class: enums::by_table::media_files::media_file_class::MediaFileClass`,\n    m.media_type as `media_type: enums::by_table::media_files::media_file_type::MediaFileType`,\n\n    m.public_bucket_directory_hash,\n    m.maybe_public_bucket_prefix,\n    m.maybe_public_bucket_extension,\n    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,\n\n    users.token as `maybe_creator_user_token: tokens::tokens::users::UserToken`,\n    users.username as maybe_creator_username,\n    users.display_name as maybe_creator_display_name,\n    users.email_gravatar_hash as maybe_creator_gravatar_hash,\n\n    media_file_cover_image.public_bucket_directory_hash as maybe_file_cover_image_public_bucket_hash,\n    media_file_cover_image.maybe_public_bucket_prefix as maybe_file_cover_image_public_bucket_prefix,\n    media_file_cover_image.maybe_public_bucket_extension as maybe_file_cover_image_public_bucket_extension,\n\n    m.creator_set_visibility as `creator_set_visibility: enums::common::visibility::Visibility`,\n\n    m.maybe_prompt_token as `maybe_prompt_token: tokens::tokens::prompts::PromptToken`,\n    m.maybe_title,\n\n    m.created_at,\n    m.updated_at\n\nFROM media_files AS m FORCE INDEX (fk_maybe_creator_user_token)\nLEFT OUTER JOIN users\n    ON m.maybe_creator_user_token = users.token\nLEFT OUTER JOIN media_files as media_file_cover_image\n    ON media_file_cover_image.token = m.maybe_cover_image_media_file_token\nWHERE\n    m.maybe_creator_user_token = ?\n    AND m.media_class = ?\n    AND m.user_deleted_at IS NULL\n    AND m.mod_deleted_at IS NULL\n    AND NOT m.is_intermediate_system_file\n    AND m.id < ?\nORDER BY m.id DESC\nLIMIT ?\n      ",
   "describe": {
     "columns": [
       {
@@ -75,6 +75,16 @@
       },
       {
         "ordinal": 7,
+        "name": "maybe_thumbnail_version: u8",
+        "type_info": {
+          "type": "Tiny",
+          "flags": "UNSIGNED",
+          "char_set": 63,
+          "max_size": 3
+        }
+      },
+      {
+        "ordinal": 8,
         "name": "maybe_creator_user_token: tokens::tokens::users::UserToken",
         "type_info": {
           "type": "VarString",
@@ -84,7 +94,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "maybe_creator_username",
         "type_info": {
           "type": "VarString",
@@ -94,7 +104,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "maybe_creator_display_name",
         "type_info": {
           "type": "VarString",
@@ -104,7 +114,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "maybe_creator_gravatar_hash",
         "type_info": {
           "type": "String",
@@ -114,7 +124,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "maybe_file_cover_image_public_bucket_hash",
         "type_info": {
           "type": "VarString",
@@ -124,7 +134,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "maybe_file_cover_image_public_bucket_prefix",
         "type_info": {
           "type": "VarString",
@@ -134,7 +144,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "maybe_file_cover_image_public_bucket_extension",
         "type_info": {
           "type": "VarString",
@@ -144,7 +154,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "creator_set_visibility: enums::common::visibility::Visibility",
         "type_info": {
           "type": "String",
@@ -154,7 +164,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "maybe_prompt_token: tokens::tokens::prompts::PromptToken",
         "type_info": {
           "type": "VarString",
@@ -164,7 +174,7 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 17,
         "name": "maybe_title",
         "type_info": {
           "type": "VarString",
@@ -174,7 +184,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 18,
         "name": "created_at",
         "type_info": {
           "type": "Timestamp",
@@ -184,7 +194,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 19,
         "name": "updated_at",
         "type_info": {
           "type": "Timestamp",
@@ -212,6 +222,7 @@
       true,
       true,
       true,
+      true,
       false,
       true,
       true,
@@ -219,5 +230,5 @@
       false
     ]
   },
-  "hash": "a52cc2d6e86607c430173553230b3794a4c1ada07274a975c04128e47d3b7f83"
+  "hash": "b0d2f025aa7d137c0a9f50d0af4bf863e1d0741d9a34111bdfaaf18f10ec11f4"
 }

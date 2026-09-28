@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 
+use chrono::{DateTime, Utc};
 use sqlx::{Executor, MySql, QueryBuilder};
 
 use enums::by_table::media_files::media_file_class::MediaFileClass;
@@ -15,6 +16,9 @@ pub struct MediaFileThumbnailRow {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
+  pub created_at: DateTime<Utc>,
 }
 
 pub struct BatchGetMediaFileThumbnailsByTokensArgs<'e, 'c, E>
@@ -49,7 +53,9 @@ where
        media_type, \
        public_bucket_directory_hash, \
        maybe_public_bucket_prefix, \
-       maybe_public_bucket_extension \
+       maybe_public_bucket_extension, \
+       maybe_thumbnail_version, \
+       created_at \
      FROM media_files \
      WHERE user_deleted_at IS NULL \
        AND mod_deleted_at IS NULL \
@@ -74,6 +80,8 @@ where
     public_bucket_directory_hash: r.public_bucket_directory_hash,
     maybe_public_bucket_prefix: r.maybe_public_bucket_prefix,
     maybe_public_bucket_extension: r.maybe_public_bucket_extension,
+    maybe_thumbnail_version: r.maybe_thumbnail_version,
+    created_at: r.created_at,
   }).collect())
 }
 
@@ -88,4 +96,6 @@ struct RawRow {
   public_bucket_directory_hash: String,
   maybe_public_bucket_prefix: Option<String>,
   maybe_public_bucket_extension: Option<String>,
+  maybe_thumbnail_version: Option<u8>,
+  created_at: DateTime<Utc>,
 }

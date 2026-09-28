@@ -16,6 +16,7 @@ use tokens::tokens::media_files::MediaFileToken;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::state::server_state::ServerState;
 
@@ -99,5 +100,5 @@ fn resolve_media_links(
     record.maybe_public_bucket_prefix.as_deref(),
     record.maybe_public_bucket_extension.as_deref(),
   );
-  Some(MediaLinksBuilder::from_media_path_and_env(media_domain, server_environment, &path))
+  Some(MediaLinksBuilder::from_media_path_and_env(media_domain, server_environment, &path, VideoThumbnailInfo::new(record.maybe_thumbnail_version, record.created_at)))
 }

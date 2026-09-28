@@ -21,6 +21,7 @@ use cloud_storage::legacy_bucket_client::LegacyBucketClient;
 use concurrency::relaxed_atomic_bool::RelaxedAtomicBool;
 use shared_env_var_config::logging::DEFAULT_RUST_LOG;
 use errors::AnyhowResult;
+use ffmpeg_utils::ffmpeg::webp_ffmpeg_binary::resolve_webp_ffmpeg;
 use jobs_common::job_stats::JobStats;
 use server_environment::ServerEnvironment;
 use shared_env_var_config::mysql::env_get_mysql_connection_string_or_default;
@@ -73,6 +74,11 @@ async fn main() -> AnyhowResult<()> {
     &easyenv::get_env_string_required("SERVER_ENVIRONMENT")?,
   )
     .ok_or(anyhow!("invalid server environment"))?;
+
+  // Thumbnail version 2 writes animated webp previews; fail fast if no ffmpeg can.
+  // (In development on macOS, this may fall back to Homebrew's ffmpeg-full.)
+  let webp_ffmpeg = resolve_webp_ffmpeg(server_environment.is_development())?;
+  info!("Webp previews will use ffmpeg at: {}", webp_ffmpeg.display());
 
   // Bucket setup
   let access_key = easyenv::get_env_string_required(ENV_ACCESS_KEY)?;

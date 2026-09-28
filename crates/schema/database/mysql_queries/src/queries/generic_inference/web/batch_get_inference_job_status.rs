@@ -117,6 +117,8 @@ SELECT
     media_files.public_bucket_directory_hash as maybe_media_file_public_bucket_directory_hash,
     media_files.maybe_public_bucket_prefix as maybe_media_file_public_bucket_prefix,
     media_files.maybe_public_bucket_extension as maybe_media_file_public_bucket_extension,
+    media_files.maybe_thumbnail_version as maybe_media_file_thumbnail_version,
+    media_files.created_at as maybe_media_file_created_at,
 
     jobs.assigned_worker as maybe_assigned_worker,
     jobs.assigned_cluster as maybe_assigned_cluster,
@@ -246,6 +248,8 @@ fn raw_records_to_public_result(records: Vec<RawGenericInferenceJobStatus>) -> V
                         public_bucket_location_or_hash: public_bucket_hash.to_string(),
                         maybe_media_file_public_bucket_prefix: record.maybe_media_file_public_bucket_prefix.clone(),
                         maybe_media_file_public_bucket_extension: record.maybe_media_file_public_bucket_extension.clone(),
+                        maybe_media_file_thumbnail_version: record.maybe_media_file_thumbnail_version,
+                        maybe_media_file_created_at: record.maybe_media_file_created_at,
                         public_bucket_location_is_hash: bucket_path_is_hash,
                         maybe_successfully_completed_at: record.maybe_successfully_completed_at,
                       }
@@ -320,6 +324,8 @@ struct RawGenericInferenceJobStatus {
   pub maybe_media_file_public_bucket_directory_hash: Option<String>, // NB: This is the bucket directory hash
   pub maybe_media_file_public_bucket_prefix: Option<String>,
   pub maybe_media_file_public_bucket_extension: Option<String>,
+  pub maybe_media_file_thumbnail_version: Option<u8>,
+  pub maybe_media_file_created_at: Option<DateTime<Utc>>,
 
   pub maybe_assigned_worker: Option<String>,
   pub maybe_assigned_cluster: Option<String>,
@@ -377,6 +383,8 @@ impl FromRow<'_, MySqlRow> for RawGenericInferenceJobStatus {
       maybe_media_file_public_bucket_directory_hash: row.try_get("maybe_media_file_public_bucket_directory_hash")?,
       maybe_media_file_public_bucket_prefix: row.try_get("maybe_media_file_public_bucket_prefix")?,
       maybe_media_file_public_bucket_extension: row.try_get("maybe_media_file_public_bucket_extension")?,
+      maybe_media_file_thumbnail_version: row.try_get("maybe_media_file_thumbnail_version")?,
+      maybe_media_file_created_at: row.try_get("maybe_media_file_created_at")?,
       maybe_assigned_worker: row.try_get("maybe_assigned_worker")?,
       maybe_assigned_cluster: row.try_get("maybe_assigned_cluster")?,
       maybe_frontend_failure_category: row.try_get("maybe_frontend_failure_category")?,

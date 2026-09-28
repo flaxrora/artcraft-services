@@ -1,5 +1,6 @@
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use actix_web::HttpRequest;
 use bucket_paths::legacy::typified_paths::public::media_files::bucket_file_path::MediaFileBucketPath;
@@ -62,7 +63,8 @@ pub async fn lookup_image_urls_as_map(
         let media_links = MediaLinksBuilder::from_media_path_and_env(
           media_domain,
           server_environment,
-          &public_bucket_path);
+          &public_bucket_path,
+          VideoThumbnailInfo::new(file.maybe_thumbnail_version, file.created_at));
 
         (file.token, media_links.cdn_url.to_string())
       })

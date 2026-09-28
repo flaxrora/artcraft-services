@@ -96,6 +96,7 @@ pub struct MediaFile {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub maybe_ratings_positive_count: Option<u32>,
   pub maybe_ratings_negative_count: Option<u32>,
@@ -184,6 +185,7 @@ pub struct MediaFileRaw {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   //pub model_is_mod_approved: bool, // converted
   //pub maybe_mod_user_token: Option<String>,
@@ -296,6 +298,7 @@ pub async fn get_media_file_with_transactor(
     public_bucket_directory_hash: record.public_bucket_directory_hash,
     maybe_public_bucket_prefix: record.maybe_public_bucket_prefix,
     maybe_public_bucket_extension: record.maybe_public_bucket_extension,
+    maybe_thumbnail_version: record.maybe_thumbnail_version,
     maybe_ratings_positive_count: record.maybe_ratings_positive_count,
     maybe_ratings_negative_count: record.maybe_ratings_negative_count,
     maybe_bookmark_count: record.maybe_bookmark_count,
@@ -373,6 +376,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     entity_stats.ratings_positive_count as maybe_ratings_positive_count,
     entity_stats.ratings_negative_count as maybe_ratings_negative_count,
@@ -495,6 +499,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     entity_stats.ratings_positive_count as maybe_ratings_positive_count,
     entity_stats.ratings_negative_count as maybe_ratings_negative_count,

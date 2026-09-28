@@ -54,6 +54,7 @@ pub struct MediaFileListItem {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub maybe_creator_user_token: Option<UserToken>,
   pub maybe_creator_username: Option<String>,
@@ -142,6 +143,7 @@ pub async fn list_media_files(args: ListMediaFilesArgs<'_>) -> AnyhowResult<Medi
           public_bucket_directory_hash: record.public_bucket_directory_hash,
           maybe_public_bucket_prefix: record.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: record.maybe_public_bucket_extension,
+          maybe_thumbnail_version: record.maybe_thumbnail_version,
           maybe_creator_user_token: record.maybe_creator_user_token,
           maybe_creator_username: record.maybe_creator_username,
           maybe_creator_display_name: record.maybe_creator_display_name,
@@ -218,6 +220,7 @@ SELECT
   m.public_bucket_directory_hash,
   m.maybe_public_bucket_prefix,
   m.maybe_public_bucket_extension,
+  m.maybe_thumbnail_version,
 
   m.maybe_creator_user_token,
   u.username as maybe_creator_username,
@@ -443,6 +446,7 @@ struct MediaFileListItemInternal {
   public_bucket_directory_hash: String,
   maybe_public_bucket_prefix: Option<String>,
   maybe_public_bucket_extension: Option<String>,
+  maybe_thumbnail_version: Option<u8>,
 
   maybe_creator_user_token: Option<UserToken>,
   maybe_creator_username: Option<String>,
@@ -506,6 +510,7 @@ impl FromRow<'_, MySqlRow> for MediaFileListItemInternal {
       public_bucket_directory_hash: row.try_get("public_bucket_directory_hash")?,
       maybe_public_bucket_prefix: row.try_get("maybe_public_bucket_prefix")?,
       maybe_public_bucket_extension: row.try_get("maybe_public_bucket_extension")?,
+      maybe_thumbnail_version: row.try_get("maybe_thumbnail_version")?,
       maybe_creator_user_token,
       maybe_creator_username: row.try_get("maybe_creator_username")?,
       maybe_creator_display_name: row.try_get("maybe_creator_display_name")?,

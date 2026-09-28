@@ -27,6 +27,7 @@ pub struct JobMediaFileRecord {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub maybe_file_cover_image_public_bucket_hash: Option<String>,
   pub maybe_file_cover_image_public_bucket_prefix: Option<String>,
@@ -78,6 +79,7 @@ SELECT
     m.public_bucket_directory_hash,
     m.maybe_public_bucket_prefix,
     m.maybe_public_bucket_extension,
+    m.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
     media_file_cover_image.public_bucket_directory_hash as maybe_file_cover_image_public_bucket_hash,
     media_file_cover_image.maybe_public_bucket_prefix as maybe_file_cover_image_public_bucket_prefix,

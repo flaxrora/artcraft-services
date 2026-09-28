@@ -15,6 +15,7 @@ use tokens::tokens::media_files::MediaFileToken;
 
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 
 /// Gather every media-file token referenced by the given folder rows
 /// (the four `last_media_*` slots + the custom cover) and batch-fetch
@@ -129,6 +130,7 @@ fn build_folder_thumbnail(
     media_domain,
     server_environment,
     &bucket_path,
+    VideoThumbnailInfo::new(row.maybe_thumbnail_version, row.created_at),
   );
 
   // Only video media files have previews; `MediaLinksBuilder` returns
@@ -139,6 +141,8 @@ fn build_folder_thumbnail(
       animated: previews.animated,
       still_thumbnail_template: previews.still_thumbnail_template,
       animated_thumbnail_template: previews.animated_thumbnail_template,
+      maybe_catalina_fallback_animated_gif: previews.maybe_catalina_fallback_animated_gif,
+      maybe_catalina_fallback_animated_gif_thumbnail_template: previews.maybe_catalina_fallback_animated_gif_thumbnail_template,
     });
 
   FolderThumbnail {
@@ -155,6 +159,7 @@ fn build_folder_thumbnail(
 mod tests {
   use enums::by_table::media_files::media_file_class::MediaFileClass;
   use enums::by_table::media_files::media_file_type::MediaFileType;
+  use chrono::{TimeZone, Utc};
 
   use super::*;
 
@@ -163,7 +168,7 @@ mod tests {
 
   #[test]
   fn mp4_video_gets_video_previews() {
-    let thumbnail = build_thumbnail_for_extension(MediaFileClass::Video, MediaFileType::Mp4, ".mp4");
+    let thumbnail = build_thumbnail_for_extension(MediaFileClass::Video, MediaFileType::Mp4, ".mp4", Some(1));
 
     assert_eq!(thumbnail.maybe_thumbnail_template, None);
 
@@ -183,8 +188,24 @@ mod tests {
   }
 
   #[test]
+  fn version_2_mp4_gets_webp_preview_and_catalina_gif_fallback() {
+    let thumbnail = build_thumbnail_for_extension(MediaFileClass::Video, MediaFileType::Mp4, ".mp4", Some(2));
+
+    let previews = thumbnail.maybe_video_previews.expect("video should have previews");
+    assert_eq!(
+      previews.animated.as_str(),
+      format!("{PROD_CDN}/media/t/6/c/n/y/{OBJECT_HASH}/storyteller_{OBJECT_HASH}.mp4-thumb.webp"));
+    assert_eq!(
+      previews.maybe_catalina_fallback_animated_gif.as_ref().map(|url| url.as_str()),
+      Some(format!("{PROD_CDN}/media/t/6/c/n/y/{OBJECT_HASH}/storyteller_{OBJECT_HASH}.mp4-thumb.gif").as_str()));
+    assert_eq!(
+      previews.maybe_catalina_fallback_animated_gif_thumbnail_template,
+      Some(format!("{PROD_CDN}/cdn-cgi/image/width={{WIDTH}},quality=95/media/t/6/c/n/y/{OBJECT_HASH}/storyteller_{OBJECT_HASH}.mp4-thumb.gif")));
+  }
+
+  #[test]
   fn png_image_gets_thumbnail_template_but_no_video_previews() {
-    let thumbnail = build_thumbnail_for_extension(MediaFileClass::Image, MediaFileType::Png, ".png");
+    let thumbnail = build_thumbnail_for_extension(MediaFileClass::Image, MediaFileType::Png, ".png", None);
 
     assert_eq!(
       thumbnail.maybe_thumbnail_template,
@@ -196,6 +217,7 @@ mod tests {
     media_class: MediaFileClass,
     media_type: MediaFileType,
     extension: &str,
+    maybe_thumbnail_version: Option<u8>,
   ) -> FolderThumbnail {
     let row = MediaFileThumbnailRow {
       token: MediaFileToken::new_from_str("m_test"),
@@ -204,6 +226,8 @@ mod tests {
       public_bucket_directory_hash: OBJECT_HASH.to_string(),
       maybe_public_bucket_prefix: Some("storyteller_".to_string()),
       maybe_public_bucket_extension: Some(extension.to_string()),
+      maybe_thumbnail_version,
+      created_at: Utc.with_ymd_and_hms(2026, 4, 1, 0, 0, 0).unwrap(),
     };
 
     build_folder_thumbnail(row, MediaDomain::FakeYou, ServerEnvironment::Production)

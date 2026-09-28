@@ -17,6 +17,7 @@ use tokens::tokens::prompts::PromptToken;
 
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::state::server_state::ServerState;
 
@@ -112,6 +113,7 @@ pub async fn batch_get_prompts_handler(
         media_domain,
         server_state.server_environment,
         &bucket_path,
+        VideoThumbnailInfo::new(item.maybe_thumbnail_version, item.created_at),
       ),
     };
 

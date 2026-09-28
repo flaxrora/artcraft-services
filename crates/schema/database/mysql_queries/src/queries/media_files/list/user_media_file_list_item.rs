@@ -38,6 +38,7 @@ pub struct MediaFileListItem {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  pub maybe_thumbnail_version: Option<u8>,
 
   pub maybe_prompt_token: Option<PromptToken>,
 
@@ -90,6 +91,7 @@ pub(super) struct MediaFileListItemInternal {
   public_bucket_directory_hash: String,
   maybe_public_bucket_prefix: Option<String>,
   maybe_public_bucket_extension: Option<String>,
+  maybe_thumbnail_version: Option<u8>,
 
   maybe_prompt_token: Option<PromptToken>,
 
@@ -146,6 +148,7 @@ impl FromRow<'_, MySqlRow> for MediaFileListItemInternal {
       public_bucket_directory_hash: row.try_get("public_bucket_directory_hash")?,
       maybe_public_bucket_prefix: row.try_get("maybe_public_bucket_prefix")?,
       maybe_public_bucket_extension: row.try_get("maybe_public_bucket_extension")?,
+      maybe_thumbnail_version: row.try_get("maybe_thumbnail_version")?,
       maybe_prompt_token: PromptToken::try_from_mysql_row_nullable(row, "maybe_prompt_token")?,
       creator_set_visibility: Visibility::try_from_mysql_row(row, "creator_set_visibility")?,
       is_user_upload: row.try_get("is_user_upload")?,
@@ -180,6 +183,7 @@ impl From<MediaFileListItemInternal> for MediaFileListItem {
       public_bucket_directory_hash: record.public_bucket_directory_hash,
       maybe_public_bucket_prefix: record.maybe_public_bucket_prefix,
       maybe_public_bucket_extension: record.maybe_public_bucket_extension,
+      maybe_thumbnail_version: record.maybe_thumbnail_version,
       maybe_prompt_token: record.maybe_prompt_token,
       creator_set_visibility: record.creator_set_visibility,
       is_user_upload: i8_to_bool(record.is_user_upload),

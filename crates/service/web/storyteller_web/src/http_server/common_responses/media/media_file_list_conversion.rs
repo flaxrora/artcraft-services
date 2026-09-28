@@ -6,6 +6,7 @@ use server_environment::ServerEnvironment;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 
 /// Build the `MediaLinks` + `MediaFileCoverImageDetails` pair for one
 /// media-file list row. Shared by every list endpoint that returns
@@ -26,6 +27,7 @@ pub fn build_media_links_and_cover(
     media_domain,
     server_environment,
     &bucket_path,
+    VideoThumbnailInfo::new(row.maybe_thumbnail_version, row.created_at),
   );
 
   let cover_image = MediaFileCoverImageDetails::from_optional_db_fields(

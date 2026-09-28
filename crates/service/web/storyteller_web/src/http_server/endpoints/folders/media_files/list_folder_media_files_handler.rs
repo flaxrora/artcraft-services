@@ -31,6 +31,7 @@ use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::user_lookup::user_session::require_user_session::require_user_session;
 use crate::state::server_state::ServerState;
@@ -203,6 +204,7 @@ fn folder_media_file_row_to_list_item(
     media_domain,
     server_environment,
     &bucket_path,
+    VideoThumbnailInfo::new(row.maybe_thumbnail_version, row.created_at),
   );
 
   let cover_image = MediaFileCoverImageDetails::from_optional_db_fields(

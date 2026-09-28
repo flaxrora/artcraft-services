@@ -4,6 +4,7 @@ use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_domain::MediaDomain;
 use crate::http_server::common_responses::media::media_file_cover_image_details::MediaFileCoverImageDetails;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::simple_entity_stats::SimpleEntityStats;
 use crate::http_server::common_responses::user_details_lite::UserDetailsLight;
 use crate::http_server::endpoints::media_files::common_responses::live_portrait::MediaFileLivePortraitDetails;
@@ -314,7 +315,11 @@ async fn modern_media_file_lookup(
       maybe_engine_extension,
       maybe_batch_token: result.maybe_batch_token,
       maybe_scene_source_media_file_token: result.maybe_scene_source_media_file_token,
-      media_links: MediaLinksBuilder::from_media_path_and_env(media_domain, server_state.server_environment, &public_bucket_path),
+      media_links: MediaLinksBuilder::from_media_path_and_env(
+        media_domain,
+        server_state.server_environment,
+        &public_bucket_path,
+        VideoThumbnailInfo::new(result.maybe_thumbnail_version, result.created_at)),
       public_bucket_url: bucket_url_from_media_path(&public_bucket_path, media_domain, server_state.server_environment)
           .map_err(|err| {
             warn!("error creating URL: {:?}", err);
@@ -451,7 +456,13 @@ async fn emulate_media_file_with_legacy_tts_result_lookup(
       maybe_engine_extension: None,
       maybe_batch_token: None,
       maybe_scene_source_media_file_token: None,
-      media_links: MediaLinksBuilder::from_rooted_path_and_env(media_domain, server_state.server_environment, &public_bucket_path),
+      // NB: Legacy TTS results are wav files (never videos) in a table without a
+      // thumbnail version, so there are no video previews to version.
+      media_links: MediaLinksBuilder::from_rooted_path_and_env(
+        media_domain,
+        server_state.server_environment,
+        &public_bucket_path,
+        VideoThumbnailInfo::new(None, result.created_at)),
       public_bucket_url: bucket_url_from_str_path(&public_bucket_path, media_domain, server_state.server_environment)
           .map_err(|err| {
             warn!("error creating URL: {:?}", err);

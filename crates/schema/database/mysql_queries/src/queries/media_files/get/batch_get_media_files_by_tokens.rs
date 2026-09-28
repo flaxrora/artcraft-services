@@ -42,6 +42,9 @@ pub struct MediaFilesByTokensRecord {
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
 
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
+
   pub maybe_creator_user_token: Option<UserToken>,
   pub maybe_creator_username: Option<String>,
   pub maybe_creator_display_name: Option<String>,
@@ -145,6 +148,7 @@ async fn get_raw_media_files_by_tokens(
           m.public_bucket_directory_hash,
           m.maybe_public_bucket_prefix,
           m.maybe_public_bucket_extension,
+          m.maybe_thumbnail_version,
 
           m.is_user_upload,
           m.is_intermediate_system_file,
@@ -211,6 +215,7 @@ async fn get_raw_media_files_by_tokens(
           m.public_bucket_directory_hash,
           m.maybe_public_bucket_prefix,
           m.maybe_public_bucket_extension,
+          m.maybe_thumbnail_version,
 
           m.is_user_upload,
           m.is_intermediate_system_file,
@@ -315,6 +320,7 @@ fn map_to_media_files(dataset:Vec<RawMediaFileJoinUser>) -> Vec<MediaFilesByToke
           public_bucket_directory_hash: media_file.public_bucket_directory_hash,
           maybe_public_bucket_prefix: media_file.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: media_file.maybe_public_bucket_extension,
+          maybe_thumbnail_version: media_file.maybe_thumbnail_version,
 
           is_user_upload: i8_to_bool(media_file.is_user_upload),
           is_intermediate_system_file: i8_to_bool(media_file.is_intermediate_system_file),
@@ -371,6 +377,7 @@ fn map_to_media_files(dataset:Vec<RawMediaFileJoinUser>) -> Vec<MediaFilesByToke
     pub public_bucket_directory_hash: String,
     pub maybe_public_bucket_prefix: Option<String>,
     pub maybe_public_bucket_extension: Option<String>,
+    pub maybe_thumbnail_version: Option<u8>,
 
     pub maybe_ratings_positive_count: Option<u32>,
     pub maybe_ratings_negative_count: Option<u32>,
@@ -427,6 +434,7 @@ impl FromRow<'_, MySqlRow> for RawMediaFileJoinUser {
       public_bucket_directory_hash: row.try_get("public_bucket_directory_hash")?,
       maybe_public_bucket_prefix: row.try_get("maybe_public_bucket_prefix")?,
       maybe_public_bucket_extension: row.try_get("maybe_public_bucket_extension")?,
+      maybe_thumbnail_version: row.try_get("maybe_thumbnail_version")?,
       maybe_ratings_positive_count: row.try_get("maybe_ratings_positive_count")?,
       maybe_ratings_negative_count: row.try_get("maybe_ratings_negative_count")?,
       maybe_bookmark_count: row.try_get("maybe_bookmark_count")?,

@@ -32,6 +32,8 @@ pub struct MediaFileListRow {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
 
   // Cover image's bucket fields, from a LEFT JOIN on
   // mf.maybe_cover_image_media_file_token. All three are Some-or-None

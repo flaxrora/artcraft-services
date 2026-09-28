@@ -16,6 +16,7 @@ use mysql_queries::queries::media_files::list::list_session_media_files_by_class
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_file_cover_image_details_builder::MediaFileCoverImageDetailsBuilder;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::common_responses::user_details_lite_builder::UserDetailsLightBuilder;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::user_lookup::user_session::require_user_session::require_user_session;
@@ -102,6 +103,7 @@ pub async fn list_session_media_files_of_class(
             media_domain,
             server_state.server_environment,
             &public_bucket_path,
+            VideoThumbnailInfo::new(record.maybe_thumbnail_version, record.created_at),
           ),
           cover_image: MediaFileCoverImageDetailsBuilder::from_optional_db_fields(
             &record.token,

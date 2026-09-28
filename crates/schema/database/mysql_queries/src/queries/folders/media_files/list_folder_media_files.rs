@@ -34,6 +34,8 @@ pub struct FolderMediaFileRow {
   pub public_bucket_directory_hash: String,
   pub maybe_public_bucket_prefix: Option<String>,
   pub maybe_public_bucket_extension: Option<String>,
+  /// Which video preview files exist. See `video_thumbnail_suffixes` in `bucket_paths`.
+  pub maybe_thumbnail_version: Option<u8>,
 
   // Cover image's bucket fields, from a LEFT JOIN on
   // mf.maybe_cover_image_media_file_token. All three are Some-or-None
@@ -102,6 +104,7 @@ SELECT
   mf.public_bucket_directory_hash,
   mf.maybe_public_bucket_prefix,
   mf.maybe_public_bucket_extension,
+  mf.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
   cover.public_bucket_directory_hash as `maybe_cover_public_bucket_directory_hash?`,
   cover.maybe_public_bucket_prefix as `maybe_cover_public_bucket_prefix?`,
@@ -150,6 +153,7 @@ LIMIT ?
           public_bucket_directory_hash: r.public_bucket_directory_hash,
           maybe_public_bucket_prefix: r.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: r.maybe_public_bucket_extension,
+          maybe_thumbnail_version: r.maybe_thumbnail_version,
           maybe_cover_public_bucket_directory_hash: r.maybe_cover_public_bucket_directory_hash,
           maybe_cover_public_bucket_prefix: r.maybe_cover_public_bucket_prefix,
           maybe_cover_public_bucket_extension: r.maybe_cover_public_bucket_extension,
@@ -183,6 +187,7 @@ SELECT
   mf.public_bucket_directory_hash,
   mf.maybe_public_bucket_prefix,
   mf.maybe_public_bucket_extension,
+  mf.maybe_thumbnail_version as `maybe_thumbnail_version: u8`,
 
   cover.public_bucket_directory_hash as `maybe_cover_public_bucket_directory_hash?`,
   cover.maybe_public_bucket_prefix as `maybe_cover_public_bucket_prefix?`,
@@ -229,6 +234,7 @@ LIMIT ?
           public_bucket_directory_hash: r.public_bucket_directory_hash,
           maybe_public_bucket_prefix: r.maybe_public_bucket_prefix,
           maybe_public_bucket_extension: r.maybe_public_bucket_extension,
+          maybe_thumbnail_version: r.maybe_thumbnail_version,
           maybe_cover_public_bucket_directory_hash: r.maybe_cover_public_bucket_directory_hash,
           maybe_cover_public_bucket_prefix: r.maybe_cover_public_bucket_prefix,
           maybe_cover_public_bucket_extension: r.maybe_cover_public_bucket_extension,

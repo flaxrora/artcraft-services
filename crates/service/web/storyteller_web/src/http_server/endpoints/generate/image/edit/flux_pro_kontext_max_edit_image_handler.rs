@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::billing::wallets::temporary_test_wallet_deduction::temporary_test_wallet_deduction;
 use crate::http_server::common_responses::common_web_error::CommonWebError;
 use crate::http_server::common_responses::media::media_links_builder::MediaLinksBuilder;
+use crate::http_server::common_responses::media::media_links_builder::VideoThumbnailInfo;
 use crate::http_server::endpoints::generate::common::payments_error_test::payments_error_test;
 use crate::http_server::endpoints::media_files::helpers::get_media_domain::get_media_domain;
 use crate::http_server::validations::validate_idempotency_token_format::validate_idempotency_token_format;
@@ -131,7 +132,8 @@ pub async fn flux_pro_kontext_max_edit_image_handler(
       let media_links = MediaLinksBuilder::from_media_path_and_env(
         media_domain, 
         server_state.server_environment, 
-        &public_bucket_path);
+        &public_bucket_path,
+        VideoThumbnailInfo::new(image_media_file.maybe_thumbnail_version, image_media_file.created_at));
       
       media_links.cdn_url.to_string()
   };
