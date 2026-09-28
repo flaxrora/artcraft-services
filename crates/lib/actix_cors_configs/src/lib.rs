@@ -27,3 +27,6 @@ pub (crate) mod util;
 
 #[cfg(test)]
 pub (crate) mod testing;
+
+#[cfg(test)]
+mod allowlist_regression_tests;
