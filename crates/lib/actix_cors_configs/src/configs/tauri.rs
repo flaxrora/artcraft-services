@@ -5,6 +5,8 @@ pub fn add_tauri(cors: Cors, _is_production: bool) -> Cors {
       // Tauri Windows
       .allowed_origin("http://tauri.localhost")
       // Tauri Mac
+      // DO NOT REMOVE: shipped ArtCraft desktop builds send this origin.
+      // See deployed_desktop_client_origin_tests.rs.
       .allowed_origin("tauri://localhost")
 }
 

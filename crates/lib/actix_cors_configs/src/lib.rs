@@ -30,3 +30,8 @@ pub (crate) mod testing;
 
 #[cfg(test)]
 mod allowlist_regression_tests;
+
+// Origins sent by shipped ArtCraft desktop builds. Kept apart from the configs
+// they test so those can't be refactored away with them.
+#[cfg(test)]
+mod deployed_desktop_client_origin_tests;

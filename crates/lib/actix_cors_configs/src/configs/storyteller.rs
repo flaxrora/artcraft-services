@@ -13,6 +13,8 @@ pub fn add_storyteller(cors: Cors, is_production: bool) -> Cors {
         // Storyteller Engine (Production)
         .allowed_origin(STORYTELLER_ENGINE.https_link_without_path())
         // Storyteller Studio (Production)
+        // DO NOT REMOVE: shipped ArtCraft desktop builds send this origin.
+        // See deployed_desktop_client_origin_tests.rs.
         .allowed_origin(STORYTELLER_STUDIO.https_link_without_path())
         // Storyteller.ai (Production)
         .allowed_origin(STORYTELLER_API.https_link_without_path())
