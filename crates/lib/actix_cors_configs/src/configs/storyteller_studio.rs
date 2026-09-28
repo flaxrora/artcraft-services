@@ -7,7 +7,10 @@ use domains::storyteller::STORYTELLER_STUDIO_STAGING;
 use domains::storyteller::STORYTELLER_STUDIO_TESTING;
 
 pub fn add_storyteller_studio(cors: Cors, _is_production: bool) -> Cors {
-  cors.allowed_origin(STORYTELLER_STUDIO.https_link_without_path())
+  cors
+      // DO NOT REMOVE: shipped ArtCraft desktop builds send this origin.
+      // See deployed_desktop_client_origin_tests.rs.
+      .allowed_origin(STORYTELLER_STUDIO.https_link_without_path())
       .allowed_origin(STORYTELLER_STUDIO_STAGING.https_link_without_path())
       .allowed_origin(STORYTELLER_STUDIO_TESTING.https_link_without_path())
       .allowed_origin_fn(|origin, _req_head| {

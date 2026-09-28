@@ -12,6 +12,9 @@ pub const STORYTELLER_ENGINE: Domain = domain!("engine.storyteller.ai");
 pub const STORYTELLER_STAGING: Domain = domain!("staging.storyteller.ai");
 
 /// Storyteller Studio and its deploy environments.
+///
+/// NB: Shipped ArtCraft desktop builds send `https://studio.storyteller.ai` as
+/// their CORS origin, so it must stay allowed (see `actix_cors_configs`).
 pub const STORYTELLER_STUDIO: Domain = domain!("studio.storyteller.ai");
 pub const STORYTELLER_STUDIO_STAGING: Domain = domain!("studio-staging.studio.storyteller.ai");
 pub const STORYTELLER_STUDIO_TESTING: Domain = domain!("studio-testing.studio.storyteller.ai");
