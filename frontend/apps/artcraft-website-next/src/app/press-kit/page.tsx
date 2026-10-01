@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { DiscordIcon } from "@/components/icons";
+import DiscordButton from "@/components/discord-button";
 import RevealManager from "@/components/reveal-manager";
 import { SectionShell } from "@/components/landing/section-shell";
 import { Accent, PageHeader } from "@/components/page/page-header";
 import PressKitGallery from "@/components/press-kit/press-kit-gallery";
-import { Button } from "@/components/ui";
-import { SOCIAL_LINKS } from "@/lib/links";
 import { PRESS_CONTACT_PHONE } from "@/lib/press-kit-data";
 
 export const metadata: Metadata = {
@@ -55,16 +53,9 @@ export default function PressKitPage() {
             </a>
             .
           </p>
-          <Button
-            href={SOCIAL_LINKS.DISCORD}
-            target="_blank"
-            rel="noopener noreferrer"
-            size="lg"
-            className="mt-8"
-          >
-            <DiscordIcon className="h-4 w-4" />
+          <DiscordButton size="lg" className="mt-8">
             Contact us on Discord
-          </Button>
+          </DiscordButton>
         </div>
       </SectionShell>
     </>

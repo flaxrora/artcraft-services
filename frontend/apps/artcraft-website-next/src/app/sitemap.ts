@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
+import { CRAFTING_APPS, craftAppPath } from "@/lib/crafting-apps";
 import { getFaqItems, getNewsPosts, getTutorialItems } from "@/lib/content";
-
-const SITE_URL = "https://getartcraft.com";
+import { SITE_URL } from "@/lib/links";
 
 type Entry = MetadataRoute.Sitemap[number];
 
@@ -19,6 +19,12 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Entry["c
   { path: "/seedance2-5", priority: 0.8, changeFrequency: "weekly" },
   { path: "/minimax-h3", priority: 0.8, changeFrequency: "weekly" },
   { path: "/creators/jboogxcreative", priority: 0.6, changeFrequency: "monthly" },
+  { path: "/apps", priority: 0.8, changeFrequency: "weekly" },
+  ...CRAFTING_APPS.map((app) => ({
+    path: craftAppPath(app),
+    priority: 0.8,
+    changeFrequency: "weekly" as const,
+  })),
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

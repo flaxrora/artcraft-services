@@ -1,3 +1,4 @@
+import { CRAFTING_APPS, craftAppName } from "./crafting-apps";
 import { cdnMediaUrl, mediaUrl } from "./links";
 
 // Product feature roster, ported from the shipping landing page. Copy is the
@@ -120,9 +121,20 @@ export const RULER_SECTIONS: RulerSection[] = [
   { id: "seedance-2", label: "SEEDANCE 2.0" },
   { id: "seedance-2-5", label: "SEEDANCE 2.5" },
   { id: "minimax-h3", label: "MINIMAX H3" },
+  // Crafting Apps: the /apps hub header and each /apps/<slug> hero.
+  { id: "apps", label: "CRAFTING APPS" },
+  ...CRAFTING_APPS.map((app) => ({
+    id: app.slug,
+    label: craftAppName(app).toUpperCase(),
+  })),
   { id: "creator", label: "SPOTLIGHT" },
   { id: "overview", label: "OVERVIEW" },
   { id: "highlights", label: "HIGHLIGHTS" },
+  { id: "lineup", label: "LINEUP" },
+  { id: "principles", label: "PRINCIPLES" },
+  { id: "gallery", label: "SCREENSHOTS" },
+  { id: "get-it", label: "GET IT" },
+  { id: "family", label: "THE FAMILY" },
   { id: "examples", label: "EXAMPLES" },
   { id: "tips", label: "PROMPT TIPS" },
   { id: "campaign-faq", label: "FAQ" },

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ChevronDownIcon, InfoIcon } from "lucide-react";
-import { GitHubIcon, DiscordIcon } from "@/components/icons";
+import DiscordButton from "@/components/discord-button";
+import { GitHubIcon } from "@/components/icons";
 import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
 import { Accent } from "@/components/page/page-header";
 import { Button } from "@/components/ui";
@@ -161,10 +162,7 @@ export function CommunityCta({ id = "community" }: { id?: string }) {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button href={SOCIAL_LINKS.DISCORD} target="_blank" rel="noopener noreferrer">
-            <DiscordIcon className="h-4 w-4" />
-            Join Discord
-          </Button>
+          <DiscordButton />
           <Button
             href={SOCIAL_LINKS.GITHUB}
             variant="secondary"

@@ -5,6 +5,7 @@ export { Badge, type BadgeProps } from "./badge";
 export { Button, type ButtonProps } from "./button";
 export { Checkbox, type CheckboxProps } from "./checkbox";
 export { CloseButton, type CloseButtonProps } from "./close-button";
+export { CopyButton, type CopyButtonProps } from "./copy-button";
 export { Input, type InputProps } from "./input";
 export { Label, type LabelProps } from "./label";
 export { Modal, type ModalProps } from "./modal";

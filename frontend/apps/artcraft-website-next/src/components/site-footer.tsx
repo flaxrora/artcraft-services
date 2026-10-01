@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CRAFTING_APPS, craftAppName, craftAppPath } from "@/lib/crafting-apps";
 import { SOCIAL_LINKS, SUPPORT_EMAIL, WEBAPP_URL } from "@/lib/links";
 
 const LINK_COLUMNS: {
@@ -11,6 +12,16 @@ const LINK_COLUMNS: {
       { name: "Download", href: "/download" },
       { name: "Pricing", href: "/pricing" },
       { name: "Launch App", href: WEBAPP_URL, external: true },
+    ],
+  },
+  {
+    heading: "Craft Apps",
+    links: [
+      { name: "All Craft Apps", href: "/apps" },
+      ...CRAFTING_APPS.map((app) => ({
+        name: craftAppName(app),
+        href: craftAppPath(app),
+      })),
     ],
   },
   {
@@ -39,8 +50,8 @@ export default function SiteFooter() {
   return (
     <footer className="border-t border-line">
       <div className="mx-auto max-w-[1280px] border-x border-line">
-        <div className="grid gap-px bg-line md:grid-cols-[2fr_1fr_1fr_1fr]">
-          <div className="bg-bg p-6 md:p-10">
+        <div className="grid gap-px bg-line md:grid-cols-4 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+          <div className="bg-bg p-6 md:col-span-4 md:p-10 lg:col-span-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               alt="ArtCraft"

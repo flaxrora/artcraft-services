@@ -1,6 +1,15 @@
 // Cross-app link configuration, ported from the Vite site's config/links.ts.
 // The marketing site links out to the webapp for all product features.
 
+// Canonical origin for metadata, sitemaps and share links.
+export const SITE_URL = "https://getartcraft.com";
+
+/** Absolute URL for a site path; already-absolute URLs (media CDN) pass through. */
+export function siteUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) return path;
+  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 export const WEBAPP_URL =
   process.env.NEXT_PUBLIC_WEBAPP_URL ?? "https://app.getartcraft.com/";
 

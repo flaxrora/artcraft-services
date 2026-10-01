@@ -7,25 +7,36 @@ export default function CampaignHero({
   id,
   label,
   annotation,
+  kicker,
   title,
   lede,
   children,
   media,
   mediaCaption,
+  mediaTag = "Reel",
 }: {
   id: string;
   label: string;
   annotation?: string;
+  /** Small line above the headline (e.g. a product wordmark). */
+  kicker?: ReactNode;
   title: ReactNode;
   lede: ReactNode;
   children?: ReactNode;
   media?: ReactNode;
   mediaCaption?: string;
+  /** Right-hand label on the media strip. */
+  mediaTag?: string;
 }) {
   return (
     <SectionShell id={id}>
       <SectionEyebrow index="01" label={label} annotation={annotation} />
       <div data-reveal-group className="flex flex-col items-center px-6 py-14 text-center md:px-10 md:py-20">
+        {kicker && (
+          <div data-reveal className="mb-6">
+            {kicker}
+          </div>
+        )}
         <h1
           data-reveal
           className="max-w-4xl font-display text-4xl font-medium leading-[1.02] tracking-[-0.035em] text-ink-strong sm:text-5xl md:text-6xl lg:text-7xl"
@@ -45,7 +56,7 @@ export default function CampaignHero({
         <figure className="border-t border-line">
           <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-2 md:px-10">
             <figcaption className="hud-label text-faint">{mediaCaption}</figcaption>
-            <p className="hud-label text-faint">Reel</p>
+            <p className="hud-label text-faint">{mediaTag}</p>
           </div>
           <div className="relative aspect-video w-full overflow-hidden bg-bg-sunken">
             {media}

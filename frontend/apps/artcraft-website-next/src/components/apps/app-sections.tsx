@@ -1,0 +1,218 @@
+import Link from "next/link";
+import { ArrowDownToLineIcon, ArrowUpRightIcon, TerminalIcon } from "lucide-react";
+import { twMerge } from "tailwind-merge";
+import DiscordButton from "@/components/discord-button";
+import { GitHubIcon } from "@/components/icons";
+import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
+import { Badge, Button, CopyButton } from "@/components/ui";
+import {
+  CRAFTING_APPS,
+  craftAppBuildCommand,
+  craftAppIndex,
+  craftAppName,
+  craftAppRepo,
+  craftShotSourceUrl,
+  craftShotUrl,
+  formatList,
+  type CraftApp,
+} from "@/lib/crafting-apps";
+import AppCard from "./app-card";
+import { ColorAccent } from "./app-wordmark";
+
+// Body sections of an /apps/<slug> page, in page order. Server components;
+// the only client island is the CopyButton.
+
+const CELL_HEADING_CLASSES =
+  "mt-4 font-display text-3xl font-medium leading-[1.05] tracking-[-0.03em] text-ink-strong sm:text-4xl";
+
+// The hero carries shot 01; the rest lead with a full-width shot, then pair.
+export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
+  const [, ...shots] = app.shots;
+  return (
+    <SectionShell id="gallery">
+      <SectionEyebrow
+        index={index}
+        label="Screenshots"
+        annotation={`Captured in ${craftAppName(app)}`}
+      />
+      <div data-reveal-group className="grid gap-px bg-line md:grid-cols-2">
+        {shots.map((shot, i) => (
+          <figure
+            key={shot.file}
+            data-reveal
+            className={twMerge("bg-bg", i === 0 && "md:col-span-2")}
+          >
+            <a
+              href={craftShotSourceUrl(app, shot)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block aspect-[16/10] overflow-hidden bg-bg-sunken"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={craftShotUrl(app, shot)}
+                alt={shot.alt}
+                loading="lazy"
+                decoding="async"
+                width={1600}
+                height={1000}
+                className="h-full w-full object-cover"
+              />
+              <span className="hud-label absolute right-3 bottom-3 flex items-center gap-1 bg-bg/80 px-2 py-1 text-ink opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                Full size
+                <ArrowUpRightIcon aria-hidden className="h-3 w-3" />
+              </span>
+            </a>
+            <figcaption className="flex items-center justify-between gap-4 border-t border-line px-6 py-3 md:px-10">
+              <span className="hud-label text-muted">{shot.caption}</span>
+              <span className="hud-label text-faint">
+                {String(i + 2).padStart(2, "0")}
+              </span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </SectionShell>
+  );
+}
+
+// Installers (or, until there are any, the Discord waitlist) beside
+// build-from-source. Filling `downloads` in crafting-apps.ts flips the left
+// cell to download buttons.
+export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
+  const name = craftAppName(app);
+  const command = craftAppBuildCommand(app);
+  const desktop = app.platforms.filter((platform) => platform !== "Web");
+
+  return (
+    <SectionShell id="get-it">
+      <SectionEyebrow
+        index={index}
+        label={`Get ${name}`}
+        annotation="Free · Open source"
+      />
+      <div className="grid gap-px bg-line md:grid-cols-2">
+        <div data-reveal className="flex flex-col bg-bg p-6 md:p-10">
+          <p className="hud-label text-faint">Installers</p>
+          {app.downloads ? (
+            <>
+              <h3 className={CELL_HEADING_CLASSES}>
+                Download <ColorAccent>{name}</ColorAccent>.
+              </h3>
+              <div className="mt-8 flex flex-wrap gap-3">
+                {app.downloads.map((download) => (
+                  <Button key={download.href} href={download.href} size="lg">
+                    <ArrowDownToLineIcon aria-hidden className="h-4 w-4" />
+                    {download.label}
+                  </Button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className={CELL_HEADING_CLASSES}>
+                Installers are <ColorAccent>on the way</ColorAccent>.
+              </h3>
+              <p className="mt-4 max-w-md leading-relaxed text-muted">
+                Native installers for {formatList(desktop)} are coming. Join
+                the ArtCraft Discord to get them first, try early builds and
+                talk with the team building {name}.
+              </p>
+              <DiscordButton size="lg" className="mt-8">
+                Get notified on Discord
+              </DiscordButton>
+            </>
+          )}
+          <div className="mt-auto flex flex-wrap gap-1.5 pt-10">
+            {app.platforms.map((platform) => (
+              <Badge key={platform} label={platform} />
+            ))}
+          </div>
+        </div>
+
+        <div data-reveal className="flex min-w-0 flex-col bg-bg p-6 md:p-10">
+          <p className="hud-label text-faint">Build from source</p>
+          <h3 className={CELL_HEADING_CLASSES}>
+            Run it <ColorAccent>today</ColorAccent>.
+          </h3>
+          <p className="mt-4 max-w-md leading-relaxed text-muted">
+            Needs Rust {app.rustVersion} or newer. New to Rust? Install it with{" "}
+            <a
+              href="https://rustup.rs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current"
+            >
+              rustup
+            </a>
+            , then run:
+          </p>
+          <figure className="mt-6 border border-line bg-bg-sunken">
+            <div className="flex items-center justify-between border-b border-line pl-4">
+              <figcaption className="hud-label flex items-center gap-2 text-faint">
+                <TerminalIcon aria-hidden className="h-3.5 w-3.5" />
+                Terminal
+              </figcaption>
+              <CopyButton
+                value={command}
+                variant="ghost"
+                className="h-9 border-l border-line px-3"
+              />
+            </div>
+            <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-ink">
+              <code>{command}</code>
+            </pre>
+          </figure>
+          <Button
+            href={craftAppRepo(app)}
+            variant="secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8"
+          >
+            <GitHubIcon className="h-4 w-4" />
+            View source on GitHub
+          </Button>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+// The other apps, compact, linking back to the hub.
+export function AppFamily({ app, index }: { app: CraftApp; index: string }) {
+  const siblings = CRAFTING_APPS.filter((other) => other.slug !== app.slug);
+  return (
+    <SectionShell id="family">
+      <SectionEyebrow index={index} label="The family" annotation="Crafting Apps" />
+      <div className="flex flex-col gap-4 px-6 py-12 md:flex-row md:items-end md:justify-between md:px-10 md:py-16">
+        <h2
+          data-reveal
+          className="max-w-2xl font-display text-4xl font-medium leading-[1.02] tracking-[-0.035em] text-ink-strong sm:text-5xl"
+        >
+          More from the <ColorAccent>family</ColorAccent>.
+        </h2>
+        <Link
+          href="/apps"
+          className="hud-label flex items-center gap-1.5 text-muted hover:text-ink"
+        >
+          All Crafting Apps
+          <ArrowUpRightIcon aria-hidden className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+      <div
+        data-reveal-group
+        className="grid gap-px border-t border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {siblings.map((sibling) => (
+          <AppCard
+            key={sibling.slug}
+            app={sibling}
+            index={craftAppIndex(sibling)}
+            compact
+          />
+        ))}
+      </div>
+    </SectionShell>
+  );
+}

@@ -7,10 +7,13 @@ import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { ChevronDownIcon, MenuIcon, XIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { SOCIAL_LINKS, WEBAPP_URL, webappUrl } from "@/lib/links";
+import { DiscordIcon } from "@/components/icons";
 import { Button } from "@/components/ui";
 import ThemeToggle from "./theme-toggle";
 
-type NavLeaf = { name: string; href: string };
+// `dividerBefore` sets a hairline before the entry, separating ArtCraft
+// product links from the rest of the family.
+type NavLeaf = { name: string; href: string; dividerBefore?: boolean };
 type NavGroup = { name: string; href?: string; children: NavLeaf[] };
 type NavEntry = NavLeaf | NavGroup;
 
@@ -29,6 +32,7 @@ const NAV_ITEMS: NavEntry[] = [
   },
   { name: "Download", href: "/download" },
   { name: "Support", href: "/support" },
+  { name: "Craft Apps", href: "/apps", dividerBefore: true },
 ];
 
 // Marathon-style: the inversion highlight sits on the label only, not the cell.
@@ -104,7 +108,10 @@ export default function SiteNav() {
                   return (
                     <NavigationMenu.Item
                       key={entry.name}
-                      className="flex items-stretch"
+                      className={twMerge(
+                        "flex items-stretch",
+                        entry.dividerBefore && "ml-1.5 border-l border-line pl-1.5",
+                      )}
                     >
                       <NavigationMenu.Link asChild>
                         {isExternalHref(entry.href) ? (
@@ -194,6 +201,16 @@ export default function SiteNav() {
             >
               <span className={NAV_LABEL_CLASSES}>Pricing</span>
             </Link>
+            <a
+              href={SOCIAL_LINKS.DISCORD}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Join the ArtCraft Discord"
+              title="Join the ArtCraft Discord"
+              className="flex w-12 items-center justify-center border-l border-line text-muted hover:bg-invert-bg hover:text-invert-fg"
+            >
+              <DiscordIcon className="h-4 w-4" />
+            </a>
             <ThemeToggle className="w-12 border-l border-line" />
             <Button
               href={WEBAPP_URL}
@@ -238,6 +255,7 @@ export default function SiteNav() {
                 const leafClassName = twMerge(
                   DROPDOWN_ITEM_CLASSES,
                   "py-3",
+                  entry.dividerBefore && "border-t border-line",
                   isCurrent ? "text-ink" : "text-muted active:text-ink",
                 );
                 const leafLabel = (

@@ -7,6 +7,13 @@
 // - downloadUrl: the downloadable file (e.g. Cloudflare R2 URL)
 // - containThumbnail: letterbox the thumbnail with padding (good for logos)
 
+import {
+  CRAFTING_APPS,
+  craftAppName,
+  craftShotPath,
+  craftShotSourceUrl,
+} from "./crafting-apps";
+
 export type PressKitAssetType = "video" | "image" | "embed" | "link";
 
 export type PressKitAsset = {
@@ -104,6 +111,16 @@ export const PRESS_KIT_CATEGORIES: PressKitCategory[] = [
   {
     name: "Screenshots & media",
     description: "High-resolution screenshots and promotional images",
-    assets: [],
+    // Crafting Apps: every shot, downloading the full-resolution original.
+    assets: CRAFTING_APPS.flatMap((app) =>
+      app.shots.map((shot) => ({
+        type: "image" as const,
+        title: `${craftAppName(app)}: ${shot.caption}`,
+        description: shot.alt,
+        thumbnail: craftShotPath(app, shot),
+        downloadUrl: craftShotSourceUrl(app, shot),
+        downloadLabel: "Full resolution",
+      })),
+    ),
   },
 ];

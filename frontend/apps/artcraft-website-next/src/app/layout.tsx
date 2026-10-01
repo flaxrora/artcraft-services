@@ -12,9 +12,8 @@ import LandingContext from "@/components/landing-context";
 import MotionProvider from "@/components/motion-provider";
 import ScrollRuler from "@/components/ruler/scroll-ruler";
 import TunerPanel from "@/components/dev/tuner-panel";
+import { SITE_URL } from "@/lib/links";
 import "./globals.css";
-
-const SITE_URL = "https://getartcraft.com";
 
 // Display face: variable Archivo with its width axis loaded — headings run
 // slightly expanded (font-stretch) for the industrial-grotesque look, and
