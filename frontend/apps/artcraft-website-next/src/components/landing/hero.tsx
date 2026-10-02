@@ -36,7 +36,7 @@ export default function Hero() {
               data-reveal
               className="relative mt-8 font-display text-3xl font-medium leading-[1.05] tracking-[-0.03em] text-ink-strong sm:text-4xl"
             >
-              Controllable AI{" "}
+              Capable tools{" "}
               <span className="font-serif italic font-normal text-muted">
                 for artists.
               </span>
@@ -46,9 +46,8 @@ export default function Hero() {
               data-reveal
               className="relative mt-4 max-w-md text-lg leading-relaxed text-muted"
             >
-              Artists need and deserve unparalleled control and precision.
-              ArtCraft&rsquo;s got you covered — compose in real 3D, then
-              render with AI.
+              ArtCraft builds open source tools for artists. We pride ourselves
+              on freedom of control and expression.
             </p>
 
             <div
