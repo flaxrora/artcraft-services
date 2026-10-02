@@ -9,15 +9,20 @@ import { mediaUrl } from "./links";
 // Facts (counts, timings, formats) come from each repo's README — keep them
 // in sync when the READMEs change.
 //
-// No installers are published yet. When an app ships a release, give it
-// `downloads` and the page swaps its "coming soon" cell for the buttons.
+// Apps without a published GitHub release show a Discord waitlist. When one
+// ships, give it `release` and its page offers the installers instead.
+//
+// Assets live in public/images/apps/<slug>/: icon.webp (the repo's 512 px
+// hicolor render at 256 px), og.jpg (1200×630 share card) and the shots.
 
 export type CraftAppSlug =
   | "photocraft"
-  | "drawcraft"
+  | "vectorcraft"
   | "filmcraft"
   | "lightcraft"
-  | "printcraft";
+  | "printcraft"
+  | "effectcraft"
+  | "designcraft";
 
 export type CraftPlatform = "macOS" | "Windows" | "Linux" | "Web";
 
@@ -28,15 +33,24 @@ export type CraftShot = {
   source: string;
   caption: string;
   alt: string;
+  /** Portrait page (7:9) rather than a 16:10 window capture. */
+  portrait?: boolean;
+};
+
+export type CraftRelease = {
+  /** Tag without the leading "v", e.g. "0.1.1-rc.4". */
+  version: string;
+  /** Asset names are `<slug>-<version>-<suffix>`. */
+  files: { platform: Exclude<CraftPlatform, "Web">; suffix: string }[];
 };
 
 export type CraftApp = {
   slug: CraftAppSlug;
-  /** Prefix before "Craft" — the wordmark sets "Craft" in the serif. */
+  /** Prefix before "Craft" — the wordmark colors "Craft". */
   prefix: string;
   category: string;
   status: string;
-  /** Headline split around its one serif-italic contrast word. */
+  /** Headline split around its one color-accented contrast word. */
   headline: [before: string, accent: string, after: string];
   /** One line for cards and share text. */
   pitch: string;
@@ -48,7 +62,7 @@ export type CraftApp = {
   features: Tip[];
   /** First shot is the hero. */
   shots: [CraftShot, ...CraftShot[]];
-  downloads?: { label: string; href: string }[];
+  release?: CraftRelease;
 };
 
 export const CRAFTING_APPS_GITHUB_ORG = "https://github.com/storytold";
@@ -65,6 +79,14 @@ export const CRAFTING_APPS: CraftApp[] = [
     schemaCategory: "DesignApplication",
     platforms: ["macOS", "Windows", "Linux", "Web"],
     rustVersion: "1.90",
+    release: {
+      version: "0.1.1-rc.4",
+      files: [
+        { platform: "macOS", suffix: "macos-universal.dmg" },
+        { platform: "Windows", suffix: "windows-x64.msi" },
+        { platform: "Linux", suffix: "linux-x86_64.AppImage" },
+      ],
+    },
     features: [
       {
         title: "Familiar by design",
@@ -119,8 +141,8 @@ export const CRAFTING_APPS: CraftApp[] = [
     ],
   },
   {
-    slug: "drawcraft",
-    prefix: "Draw",
+    slug: "vectorcraft",
+    prefix: "Vector",
     category: "Vector illustration",
     status: "In development",
     headline: ["Vector illustration, ", "reimagined", " in pure Rust."],
@@ -159,26 +181,26 @@ export const CRAFTING_APPS: CraftApp[] = [
       {
         file: "hero.webp",
         source: "shot-1-neon.png",
-        caption: "Neon Drive — made in DrawCraft",
-        alt: "DrawCraft editing a synthwave poster titled Neon Drive with an outer glow in the Appearance panel",
+        caption: "Neon Drive — made in VectorCraft",
+        alt: "VectorCraft editing a synthwave poster titled Neon Drive with an outer glow in the Appearance panel",
       },
       {
         file: "ribbons.webp",
         source: "shot-2-ribbons.png",
         caption: "Live blends between editable spines",
-        alt: "DrawCraft showing Live Blends: 70 smooth-color steps between two ribbon paths",
+        alt: "VectorCraft showing live blends: 70 smooth-color steps between two ribbon paths",
       },
       {
         file: "sheet.webp",
         source: "shot-3-sheet.png",
         caption: "Booleans, mesh, repeat and envelope",
-        alt: "DrawCraft feature sheet with exact booleans, a gradient mesh, a live radial repeat and an envelope distort",
+        alt: "VectorCraft feature sheet with exact booleans, a gradient mesh, a live radial repeat and an envelope distort",
       },
       {
         file: "bezier.webp",
         source: "shot-4-bezier.png",
         caption: "Direct selection on bezier anchors",
-        alt: "DrawCraft direct-selecting the anchors and handles of a crescent moon path",
+        alt: "VectorCraft direct-selecting the anchors and handles of a crescent moon path",
       },
     ],
   },
@@ -374,7 +396,151 @@ export const CRAFTING_APPS: CraftApp[] = [
       },
     ],
   },
+  {
+    slug: "effectcraft",
+    prefix: "Effect",
+    category: "Motion graphics & VFX",
+    status: "In development",
+    headline: ["Motion graphics and visual ", "effects", ", in pure Rust."],
+    pitch: "Open-source motion graphics and visual effects, built in pure Rust.",
+    lede: "Compositions, layers, keyframes, 259 effects, expressions, 3D cameras and lights, and a render queue in a native compositor written in pure Rust. Young, moving fast, and already usable.",
+    schemaCategory: "MultimediaApplication",
+    platforms: ["macOS", "Windows", "Linux", "Web"],
+    rustVersion: "1.95",
+    features: [
+      {
+        title: "Animate the way you know",
+        body: "Familiar panels and keyframes: linear, bezier, hold and eased keys, roving keys, and a graph editor with value and speed curves.",
+      },
+      {
+        title: "Layers of every kind",
+        body: "Solids, shapes, text, footage, nested compositions, nulls, adjustment layers, cameras and lights, with parenting, track mattes and 38 blend modes.",
+      },
+      {
+        title: "259 effects",
+        body: "Blur, color correction, distortion, generators, keying, particles and simulation, stylize and time effects, each with sensible defaults.",
+      },
+      {
+        title: "Real 3D",
+        body: "3D layers with cameras, depth of field and lights that cast soft ray-traced shadows, plus orbit, pan and dolly tools.",
+      },
+      {
+        title: "Expressions",
+        body: "JavaScript expressions with wiggle, loops and layer references, edited inline and linked straight to any property.",
+      },
+      {
+        title: "Export anywhere",
+        body: "H.264 and ProRes with alpha, PNG, TIFF and 32-bit EXR sequences, GIF, and Lottie import and export for the web. No FFmpeg inside.",
+      },
+    ],
+    shots: [
+      {
+        file: "hero.webp",
+        source: "effectcraft-hero.png",
+        caption: "An animated title on the timeline",
+        alt: "EffectCraft's composition panel showing an animated EFFECTCRAFT title, with the project panel, a timeline of text, shape and solid layers, and the properties panel",
+      },
+      {
+        file: "graph-editor.webp",
+        source: "effectcraft-graph-editor.png",
+        caption: "Graph editor with eased keyframes",
+        alt: "EffectCraft's graph editor showing an eased value curve for a text animator",
+      },
+      {
+        file: "effects.webp",
+        source: "effectcraft-effects.png",
+        caption: "Particle simulation effects",
+        alt: "EffectCraft's effect controls for a particle simulation bursting from the center of the composition",
+      },
+      {
+        file: "3d.webp",
+        source: "effectcraft-3d.png",
+        caption: "3D cameras, lights and soft shadows",
+        alt: "EffectCraft's 3D showcase: intersecting cards lit by a spot light with soft shadows on a gridded floor, seen from a custom camera view",
+      },
+    ],
+  },
+  {
+    slug: "designcraft",
+    prefix: "Design",
+    category: "Page layout & publishing",
+    status: "In development",
+    headline: ["Page layout and ", "publishing", ", rebuilt in pure Rust."],
+    pitch: "Open-source page layout and publishing, rebuilt in pure Rust.",
+    lede: "Spreads and parent pages, threaded stories, styles, swatches and text wrap in a native layout app with a professional paragraph composer. No subscription, no licence server, no telemetry.",
+    schemaCategory: "DesignApplication",
+    platforms: ["macOS", "Windows", "Linux", "Web"],
+    rustVersion: "1.90",
+    features: [
+      {
+        title: "The layout tools you know",
+        body: "Spreads and parent pages, frames and threaded stories, paragraph and character styles, swatches and text wrap, laid out the way you expect.",
+      },
+      {
+        title: "Beautiful type",
+        body: "A Knuth–Plass paragraph composer, dictionary hyphenation, optical margin alignment and baseline grids. Line breaks match on screen and in PDF.",
+      },
+      {
+        title: "Print-ready PDF",
+        body: "Real selectable text with embedded fonts, CMYK and spot colors, bleed, crop marks and archival PDF/A output.",
+      },
+      {
+        title: "Fast",
+        body: "Multithreaded SIMD rendering, copy-on-write documents with instant undo, and cached composition.",
+      },
+      {
+        title: "Open formats",
+        body: "A documented native format, PNG export, and layout interchange import and export for moving work between tools.",
+      },
+      {
+        title: "Agent-native",
+        body: "Every menu item, tool, panel and dialog can be driven over a JSON control channel and an MCP server.",
+      },
+    ],
+    shots: [
+      {
+        file: "hero.webp",
+        source: "ui-spread.png",
+        caption: "Threaded columns and text wrap — Quarterly",
+        alt: "DesignCraft showing a magazine spread: a threaded three-column story with its thread line, a wrapped pull quote, and the Properties panel's text frame options",
+      },
+      {
+        file: "cover.webp",
+        source: "page-cover.png",
+        caption: "Cover",
+        alt: "Magazine cover for The Spring Issue: a dusk landscape of layered purple hills under a pale sun, with the serif headline The Quiet Art of Layout",
+        portrait: true,
+      },
+      {
+        file: "feature.webp",
+        source: "page-2.png",
+        caption: "Styles",
+        alt: "Feature opener titled Notes on the Grid with a kicker rule, italic deck, landscape picture, caption and two columns of justified body text",
+        portrait: true,
+      },
+      {
+        file: "columns.webp",
+        source: "page-3.png",
+        caption: "Threading and wrap",
+        alt: "Three columns of justified, hyphenated body text wrapping around a shaded pull quote",
+        portrait: true,
+      },
+      {
+        file: "swatches.webp",
+        source: "page-4.png",
+        caption: "Swatches",
+        alt: "Coming Next page titled Color, Ink and Paper on a plum background with four labeled color swatches",
+        portrait: true,
+      },
+    ],
+  },
 ];
+
+const COUNT_WORDS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+
+/** "Seven" — the family size as a capitalized word, for headlines. */
+export const CRAFTING_APPS_COUNT_WORD =
+  COUNT_WORDS[CRAFTING_APPS.length] ?? String(CRAFTING_APPS.length);
 
 const LIST_FORMAT = new Intl.ListFormat("en", { type: "conjunction" });
 
@@ -449,6 +615,34 @@ export function craftShotUrl(app: CraftApp, shot: CraftShot): string {
 
 export function craftShotSourceUrl(app: CraftApp, shot: CraftShot): string {
   return `https://raw.githubusercontent.com/storytold/${app.slug}/main/docs/images/${shot.source}`;
+}
+
+export function craftAppIconPath(app: CraftApp): string {
+  return `/images/apps/${app.slug}/icon.webp`;
+}
+
+export function craftAppIconUrl(app: CraftApp): string {
+  return mediaUrl(craftAppIconPath(app));
+}
+
+/** The repo's 1024 px icon render (press kit download). */
+export function craftAppIconSourceUrl(app: CraftApp): string {
+  return `https://raw.githubusercontent.com/storytold/${app.slug}/main/assets/app-icon/${app.slug}-1024.png`;
+}
+
+export function craftReleasePageUrl(app: CraftApp, release: CraftRelease): string {
+  return `${craftAppRepo(app)}/releases/tag/v${release.version}`;
+}
+
+export function craftReleaseDownloads(
+  app: CraftApp,
+  release: CraftRelease,
+): { platform: string; href: string }[] {
+  const base = `${craftAppRepo(app)}/releases/download/v${release.version}`;
+  return release.files.map(({ platform, suffix }) => ({
+    platform,
+    href: `${base}/${app.slug}-${release.version}-${suffix}`,
+  }));
 }
 
 export function craftAppOgImage(app: CraftApp): string {

@@ -8,11 +8,12 @@ import {
   craftShotUrl,
   type CraftApp,
 } from "@/lib/crafting-apps";
-import { AppTab, AppWordmark, appThemeClass } from "./app-wordmark";
+import { AppIcon, AppTab, AppWordmark, appThemeClass } from "./app-wordmark";
 
-// Lineup cell: color tab + category, the hero screenshot, wordmark, pitch,
-// and (unless compact) platform/status chips. The whole cell is the link; a
-// hairline in the app's color draws across the top on hover.
+// Lineup cell: color tab + category, the hero screenshot, the app icon
+// straddling the screenshot's bottom edge, wordmark, pitch, and (unless
+// compact) status/platform chips. The whole cell is the link; a hairline in
+// the app's color draws across the top on hover.
 export default function AppCard({
   app,
   index,
@@ -47,22 +48,25 @@ export default function AppCard({
           alt={hero.alt}
           loading="lazy"
           decoding="async"
-          width={1600}
-          height={1000}
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         />
       </div>
-      <div className={twMerge("flex flex-1 flex-col", compact ? "p-6" : "p-6 md:p-8")}>
-        <h3 className="leading-none">
-          <AppWordmark
-            app={app}
-            className={compact ? "text-2xl" : "text-3xl sm:text-4xl"}
-          />
+      <div className={twMerge("flex flex-1 flex-col", compact ? "px-6 pb-6" : "px-6 pb-6 md:px-8 md:pb-8")}>
+        <AppIcon
+          app={app}
+          className={twMerge(
+            "relative transition-transform duration-300 ease-out group-hover:-translate-y-1",
+            compact ? "-mt-7 h-14 w-14" : "-mt-9 h-18 w-18",
+          )}
+        />
+        <h3 className="mt-4 leading-none">
+          <AppWordmark app={app} className={compact ? "text-2xl" : "text-3xl"} />
         </h3>
         <p className="mt-3 leading-relaxed text-muted">{app.pitch}</p>
         {!compact && (
           <div className="mt-6 flex flex-wrap gap-1.5">
             <Badge label={app.status} className="text-(--app-ink)" />
+            {app.release && <Badge label="Installers ready" className="text-(--app-ink)" />}
             {app.platforms.map((platform) => (
               <Badge key={platform} label={platform} />
             ))}

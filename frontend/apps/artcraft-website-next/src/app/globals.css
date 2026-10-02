@@ -313,25 +313,32 @@ html[data-ruler="on"]::-webkit-scrollbar {
   :root:not([data-theme="light"]) .plan-enterprise { --plan-ink: #7ea3ee; }
 }
 
-/* Crafting Apps color identities, same contract as the plan colors:
+/* Crafting Apps color identities (each app's icon tile color), same
+   contract as the plan colors:
    `--app` is the saturated surface color (black text on it passes AA),
    `--app-ink` the contrast-safe text shade per theme. */
 .app-photocraft { --app: #2f7bf5; --app-ink: #1a5bc4; }
-.app-drawcraft { --app: #e8573f; --app-ink: #b83a24; }
+.app-vectorcraft { --app: #e8573f; --app-ink: #b83a24; }
 .app-filmcraft { --app: #8b5cf6; --app-ink: #6a3fd6; }
 .app-lightcraft { --app: #f2a516; --app-ink: #8a5800; }
 .app-printcraft { --app: #12a58a; --app-ink: #0a7563; }
+.app-effectcraft { --app: #e0368f; --app-ink: #b0206c; }
+.app-designcraft { --app: #7bb51c; --app-ink: #457008; }
 :root[data-theme="dark"] .app-photocraft { --app-ink: #7fb0ff; }
-:root[data-theme="dark"] .app-drawcraft { --app-ink: #ff8a70; }
+:root[data-theme="dark"] .app-vectorcraft { --app-ink: #ff8a70; }
 :root[data-theme="dark"] .app-filmcraft { --app-ink: #b69cff; }
 :root[data-theme="dark"] .app-lightcraft { --app-ink: #ffc14d; }
 :root[data-theme="dark"] .app-printcraft { --app-ink: #3fd6b8; }
+:root[data-theme="dark"] .app-effectcraft { --app-ink: #ff7ab8; }
+:root[data-theme="dark"] .app-designcraft { --app-ink: #a6e04a; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .app-photocraft { --app-ink: #7fb0ff; }
-  :root:not([data-theme="light"]) .app-drawcraft { --app-ink: #ff8a70; }
+  :root:not([data-theme="light"]) .app-vectorcraft { --app-ink: #ff8a70; }
   :root:not([data-theme="light"]) .app-filmcraft { --app-ink: #b69cff; }
   :root:not([data-theme="light"]) .app-lightcraft { --app-ink: #ffc14d; }
   :root:not([data-theme="light"]) .app-printcraft { --app-ink: #3fd6b8; }
+  :root:not([data-theme="light"]) .app-effectcraft { --app-ink: #ff7ab8; }
+  :root:not([data-theme="light"]) .app-designcraft { --app-ink: #a6e04a; }
 }
 
 /* Plan cell: a color wash pooling under the index tab and fading into the

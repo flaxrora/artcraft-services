@@ -9,6 +9,8 @@
 
 import {
   CRAFTING_APPS,
+  craftAppIconPath,
+  craftAppIconSourceUrl,
   craftAppName,
   craftShotPath,
   craftShotSourceUrl,
@@ -107,6 +109,18 @@ export const PRESS_KIT_CATEGORIES: PressKitCategory[] = [
         containThumbnail: true,
       },
     ],
+  },
+  {
+    name: "Crafting Apps icons",
+    description: "App icons for every Crafting App, 1024 px PNG",
+    assets: CRAFTING_APPS.map((app) => ({
+      type: "image" as const,
+      title: `${craftAppName(app)} icon`,
+      thumbnail: craftAppIconPath(app),
+      downloadUrl: craftAppIconSourceUrl(app),
+      downloadLabel: "1024 px PNG",
+      containThumbnail: true,
+    })),
   },
   {
     name: "Screenshots & media",

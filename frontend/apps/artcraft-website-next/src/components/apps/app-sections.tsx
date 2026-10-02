@@ -11,6 +11,8 @@ import {
   craftAppIndex,
   craftAppName,
   craftAppRepo,
+  craftReleaseDownloads,
+  craftReleasePageUrl,
   craftShotSourceUrl,
   craftShotUrl,
   formatList,
@@ -25,9 +27,11 @@ import { ColorAccent } from "./app-wordmark";
 const CELL_HEADING_CLASSES =
   "mt-4 font-display text-3xl font-medium leading-[1.05] tracking-[-0.03em] text-ink-strong sm:text-4xl";
 
-// The hero carries shot 01; the rest lead with a full-width shot, then pair.
+// The hero carries shot 01. Window captures lead with a full-width shot,
+// then pair; portrait pages (layout spreads) sit four across.
 export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
   const [, ...shots] = app.shots;
+  const portrait = shots.every((shot) => shot.portrait);
   return (
     <SectionShell id="gallery">
       <SectionEyebrow
@@ -35,18 +39,27 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
         label="Screenshots"
         annotation={`Captured in ${craftAppName(app)}`}
       />
-      <div data-reveal-group className="grid gap-px bg-line md:grid-cols-2">
+      <div
+        data-reveal-group
+        className={twMerge(
+          "grid gap-px bg-line",
+          portrait ? "grid-cols-2 lg:grid-cols-4" : "md:grid-cols-2",
+        )}
+      >
         {shots.map((shot, i) => (
           <figure
             key={shot.file}
             data-reveal
-            className={twMerge("bg-bg", i === 0 && "md:col-span-2")}
+            className={twMerge("bg-bg", !portrait && i === 0 && "md:col-span-2")}
           >
             <a
               href={craftShotSourceUrl(app, shot)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative block aspect-[16/10] overflow-hidden bg-bg-sunken"
+              className={twMerge(
+                "group relative block overflow-hidden bg-bg-sunken",
+                shot.portrait ? "aspect-[7/9]" : "aspect-[16/10]",
+              )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -54,8 +67,6 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
                 alt={shot.alt}
                 loading="lazy"
                 decoding="async"
-                width={1600}
-                height={1000}
                 className="h-full w-full object-cover"
               />
               <span className="hud-label absolute right-3 bottom-3 flex items-center gap-1 bg-bg/80 px-2 py-1 text-ink opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
@@ -63,7 +74,12 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
                 <ArrowUpRightIcon aria-hidden className="h-3 w-3" />
               </span>
             </a>
-            <figcaption className="flex items-center justify-between gap-4 border-t border-line px-6 py-3 md:px-10">
+            <figcaption
+              className={twMerge(
+                "flex items-center justify-between gap-4 border-t border-line py-3",
+                portrait ? "px-4 md:px-6" : "px-6 md:px-10",
+              )}
+            >
               <span className="hud-label text-muted">{shot.caption}</span>
               <span className="hud-label text-faint">
                 {String(i + 2).padStart(2, "0")}
@@ -77,8 +93,8 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
 }
 
 // Installers (or, until there are any, the Discord waitlist) beside
-// build-from-source. Filling `downloads` in crafting-apps.ts flips the left
-// cell to download buttons.
+// build-from-source. Giving an app a `release` in crafting-apps.ts flips the
+// left cell to download buttons.
 export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
   const name = craftAppName(app);
   const command = craftAppBuildCommand(app);
@@ -94,19 +110,32 @@ export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
       <div className="grid gap-px bg-line md:grid-cols-2">
         <div data-reveal className="flex flex-col bg-bg p-6 md:p-10">
           <p className="hud-label text-faint">Installers</p>
-          {app.downloads ? (
+          {app.release ? (
             <>
               <h3 className={CELL_HEADING_CLASSES}>
                 Download <ColorAccent>{name}</ColorAccent>.
               </h3>
+              <p className="mt-4 max-w-md leading-relaxed text-muted">
+                Version {app.release.version}, free. Questions or feedback?
+                The team is in the ArtCraft Discord.
+              </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                {app.downloads.map((download) => (
+                {craftReleaseDownloads(app, app.release).map((download) => (
                   <Button key={download.href} href={download.href} size="lg">
                     <ArrowDownToLineIcon aria-hidden className="h-4 w-4" />
-                    {download.label}
+                    {download.platform}
                   </Button>
                 ))}
               </div>
+              <a
+                href={craftReleasePageUrl(app, app.release)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hud-label mt-5 flex w-fit items-center gap-1.5 text-muted hover:text-ink"
+              >
+                All builds and checksums
+                <ArrowUpRightIcon aria-hidden className="h-3.5 w-3.5" />
+              </a>
             </>
           ) : (
             <>
@@ -202,7 +231,7 @@ export function AppFamily({ app, index }: { app: CraftApp; index: string }) {
       </div>
       <div
         data-reveal-group
-        className="grid gap-px border-t border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-px border-t border-line bg-line sm:grid-cols-2 lg:grid-cols-3"
       >
         {siblings.map((sibling) => (
           <AppCard

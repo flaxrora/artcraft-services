@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArrowDownToLineIcon } from "lucide-react";
 import {
   AppFamily,
   AppGallery,
   AppGetIt,
 } from "@/components/apps/app-sections";
 import {
+  AppIcon,
   AppTab,
   AppWordmark,
   ColorAccent,
@@ -24,7 +26,9 @@ import {
   craftAppName,
   craftAppOgImage,
   craftAppPath,
+  craftAppIconUrl,
   craftAppRepo,
+  craftReleasePageUrl,
   craftShotUrl,
   getCraftApp,
 } from "@/lib/crafting-apps";
@@ -81,8 +85,13 @@ export default async function CraftAppPage({ params }: { params: Params }) {
     description: app.lede,
     url: shareUrl,
     image: siteUrl(craftAppOgImage(app)),
+    thumbnailUrl: siteUrl(craftAppIconUrl(app)),
     screenshot: app.shots.map((shot) => siteUrl(craftShotUrl(app, shot))),
-    codeRepository: craftAppRepo(app),
+    sameAs: craftAppRepo(app),
+    ...(app.release && {
+      softwareVersion: app.release.version,
+      downloadUrl: craftReleasePageUrl(app, app.release),
+    }),
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     publisher: { "@type": "Organization", name: "ArtCraft", url: SITE_URL },
@@ -101,9 +110,12 @@ export default async function CraftAppPage({ params }: { params: Params }) {
         label={name}
         annotation={`${app.category} · ${app.status}`}
         kicker={
-          <span className="flex items-center gap-3">
-            <AppTab>{craftAppIndex(app)}</AppTab>
-            <AppWordmark app={app} className="text-2xl" />
+          <span className="flex flex-col items-center gap-5">
+            <AppIcon app={app} priority className="h-24 w-24 md:h-28 md:w-28" />
+            <span className="flex items-center gap-3">
+              <AppTab>{craftAppIndex(app)}</AppTab>
+              <AppWordmark app={app} className="text-2xl" />
+            </span>
           </span>
         }
         title={
@@ -120,8 +132,6 @@ export default async function CraftAppPage({ params }: { params: Params }) {
             src={craftShotUrl(app, hero)}
             alt={hero.alt}
             fetchPriority="high"
-            width={1600}
-            height={1000}
             className="absolute inset-0 h-full w-full object-cover"
           />
         }
@@ -130,7 +140,18 @@ export default async function CraftAppPage({ params }: { params: Params }) {
       >
         <div className="flex flex-col items-center gap-6">
           <div className="flex flex-wrap justify-center gap-3">
-            <DiscordButton size="lg">Join the Discord</DiscordButton>
+            {app.release && (
+              <Button href="#get-it" size="lg">
+                <ArrowDownToLineIcon aria-hidden className="h-4 w-4" />
+                Download {name}
+              </Button>
+            )}
+            <DiscordButton
+              size="lg"
+              variant={app.release ? "secondary" : "primary"}
+            >
+              Join the Discord
+            </DiscordButton>
             <Button
               href={craftAppRepo(app)}
               variant="secondary"

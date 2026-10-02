@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
           permanent: false,
         }),
       ),
+      // DrawCraft was renamed VectorCraft; the Crafting Apps READMEs still
+      // link the old page.
+      {
+        source: "/apps/drawcraft",
+        destination: "/apps/vectorcraft",
+        permanent: true,
+      },
       // Legacy share-link form (`/media?media=<token>`) from the Vite site;
       // the canonical route is /media/<token>. Mirrored in netlify.toml so
       // the edge answers it before the Next runtime.

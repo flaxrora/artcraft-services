@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   BotIcon,
   CodeXmlIcon,
@@ -17,22 +18,26 @@ import {
 import DiscordButton from "@/components/discord-button";
 import { GitHubIcon } from "@/components/icons";
 import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
-import { ColorAccent } from "@/components/apps/app-wordmark";
+import { AppIcon, ColorAccent, appThemeClass } from "@/components/apps/app-wordmark";
 import { PageHeader } from "@/components/page/page-header";
 import RevealManager from "@/components/reveal-manager";
 import { Button } from "@/components/ui";
 import {
   CRAFTING_APPS,
+  CRAFTING_APPS_COUNT_WORD,
   CRAFTING_APPS_GITHUB_ORG,
   CRAFTING_APPS_OG_IMAGE,
   CRAFTING_APPS_PRINCIPLES,
   craftAppIndex,
+  craftAppName,
+  craftAppPath,
 } from "@/lib/crafting-apps";
 import { siteUrl } from "@/lib/links";
 
 const TITLE = "Crafting Apps: open-source creative tools";
-const DESCRIPTION =
-  "Image editing, vector illustration, video, photography and PDFs: five native, open-source apps from the ArtCraft team, built in Rust and free to use.";
+const COVERAGE =
+  "Image editing, vector illustration, video, photography, PDFs, motion graphics and page layout";
+const DESCRIPTION = `${COVERAGE}: ${CRAFTING_APPS_COUNT_WORD.toLowerCase()} native, open-source apps from the ArtCraft team, built in Rust and free to use.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -67,13 +72,13 @@ export default function CraftingAppsPage() {
         id="apps"
         index="01"
         label="Crafting Apps"
-        annotation="Five apps · Open source · Pure Rust"
+        annotation={`${CRAFTING_APPS_COUNT_WORD} apps · Open source · Pure Rust`}
         title={
           <>
-            Five apps. One <ColorAccent>craft</ColorAccent>.
+            {CRAFTING_APPS_COUNT_WORD} apps. One <ColorAccent>craft</ColorAccent>.
           </>
         }
-        lede="Image editing, vector illustration, video, photography and PDFs. Native, open-source apps from the ArtCraft team, built in Rust and free to use."
+        lede={`${COVERAGE}. Native, open-source apps from the ArtCraft team, built in Rust and free to use.`}
       >
         <div data-reveal className="mt-8 flex flex-wrap gap-3">
           <DiscordButton size="lg">Join the Discord</DiscordButton>
@@ -90,9 +95,31 @@ export default function CraftingAppsPage() {
         </div>
         <ShareBar
           url={siteUrl("/apps")}
-          text="Crafting Apps: five open-source creative apps from ArtCraft"
+          text={`Crafting Apps: ${CRAFTING_APPS_COUNT_WORD.toLowerCase()} open-source creative apps from ArtCraft`}
           className="mt-6"
         />
+        <nav
+          aria-label="Crafting Apps"
+          data-reveal
+          className="mt-12 flex flex-wrap gap-x-3 gap-y-6 sm:gap-x-5"
+        >
+          {CRAFTING_APPS.map((app) => (
+            <Link
+              key={app.slug}
+              href={craftAppPath(app)}
+              className={`group flex w-18 flex-col items-center gap-2 sm:w-20 ${appThemeClass(app)}`}
+            >
+              <AppIcon
+                app={app}
+                priority
+                className="h-14 w-14 transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:h-20 sm:w-20"
+              />
+              <span className="text-xs font-medium text-muted group-hover:text-(--app-ink)">
+                {craftAppName(app)}
+              </span>
+            </Link>
+          ))}
+        </nav>
       </PageHeader>
 
       <SectionShell id="lineup">
@@ -103,7 +130,7 @@ export default function CraftingAppsPage() {
         />
         <div
           data-reveal-group
-          className="grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-px bg-line sm:grid-cols-2 xl:grid-cols-4"
         >
           {CRAFTING_APPS.map((app) => (
             <AppCard key={app.slug} app={app} index={craftAppIndex(app)} />
