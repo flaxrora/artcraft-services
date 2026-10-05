@@ -1,17 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  ArrowDownToLineIcon,
-  ArrowUpRightIcon,
-  ChevronDownIcon,
-  TerminalIcon,
-} from "lucide-react";
+import { ArrowUpRightIcon, TerminalIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import DiscordButton from "@/components/discord-button";
 import { GitHubIcon } from "@/components/icons";
 import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
 import { Badge, Button, CopyButton } from "@/components/ui";
-import { CRAFT_DESKTOP_PLATFORMS } from "@/lib/crafting-app-releases";
 import {
   CRAFTING_APPS,
   craftAppBuildCommand,
@@ -26,16 +20,13 @@ import {
   craftShotUrl,
   formatList,
   type CraftApp,
-  type CraftDownload,
 } from "@/lib/crafting-apps";
 import AppCard from "./app-card";
-import { AppDownloadButtons } from "./app-downloads";
+import { AppPlatformDownloads, DownloadRow } from "./app-downloads";
 import { ColorAccent } from "./app-wordmark";
 
 // Body sections of an /apps/<slug> page, in page order. Server components;
-// the client islands are the CopyButton and the OS-aware download buttons.
-
-const DOWNLOAD_GROUPS = [...CRAFT_DESKTOP_PLATFORMS, "Other"] as const;
+// the client islands are the CopyButton and the OS-aware platform cards.
 
 const CELL_HEADING_CLASSES =
   "mt-4 font-display text-3xl font-medium leading-[1.05] tracking-[-0.03em] text-ink-strong sm:text-4xl";
@@ -105,15 +96,17 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
   );
 }
 
-// Installers (or, until there are any, the Discord waitlist) beside
-// build-from-source. Versions and files come from crafting-app-releases.ts;
-// a null release there flips the left cell to the waitlist.
+// Platform cards (your system first-class, every other build one click
+// away) above release details and build-from-source. Versions and files come
+// from crafting-app-releases.ts; a null release there drops the cards and
+// shows the Discord waitlist instead.
 export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
   const name = craftAppName(app);
   const command = craftAppBuildCommand(app);
   const desktop = app.platforms.filter((platform) => platform !== "Web");
   const release = craftAppRelease(app);
   const downloads = release ? craftReleaseDownloads(app, release) : [];
+  const extras = downloads.filter((download) => download.group === "Other");
 
   return (
     <SectionShell id="get-it">
@@ -122,24 +115,36 @@ export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
         label={`Get ${name}`}
         annotation="Free · Open source"
       />
+      {release && (
+        <div className="border-b border-line">
+          <AppPlatformDownloads downloads={downloads} />
+        </div>
+      )}
       <div className="grid gap-px bg-line md:grid-cols-2">
         <div data-reveal className="flex flex-col bg-bg p-6 md:p-10">
-          <p className="hud-label text-faint">Installers</p>
           {release ? (
             <>
+              <p className="hud-label text-faint">Release</p>
               <h3 className={CELL_HEADING_CLASSES}>
-                Download <ColorAccent>{name}</ColorAccent>.
+                Version <ColorAccent>{release.version}</ColorAccent>.
               </h3>
               <p className="mt-4 max-w-md leading-relaxed text-muted">
-                Version {release.version}, free. Questions or feedback?
-                The team is in the ArtCraft Discord.
+                Free for every platform above. Questions or feedback? The
+                team is in the ArtCraft Discord.
               </p>
-              <AppDownloadButtons
-                recommended={downloads.filter((download) => download.recommended)}
-                version={release.version}
-              />
-              <AllDownloads downloads={downloads} />
-              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+              {extras.length > 0 && (
+                <>
+                  <p className="hud-label mt-8 text-faint">Other downloads</p>
+                  <ul className="mt-2 border-t border-line">
+                    {extras.map((download) => (
+                      <li key={download.href} className="border-b border-line">
+                        <DownloadRow download={download} />
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
                 <ExternalLink href={craftReleasePageUrl(app, release)}>
                   Release notes on GitHub
                 </ExternalLink>
@@ -150,6 +155,7 @@ export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
             </>
           ) : (
             <>
+              <p className="hud-label text-faint">Installers</p>
               <h3 className={CELL_HEADING_CLASSES}>
                 Installers are <ColorAccent>on the way</ColorAccent>.
               </h3>
@@ -219,54 +225,6 @@ export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
   );
 }
 
-// The other apps, compact, linking back to the hub.
-
-// Every file in the release, grouped by platform, behind a disclosure.
-function AllDownloads({ downloads }: { downloads: CraftDownload[] }) {
-  return (
-    <details className="group/all mt-6 border border-line">
-      <summary className="hud-label flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
-        All downloads ({downloads.length} files)
-        <ChevronDownIcon
-          aria-hidden
-          className="h-3.5 w-3.5 transition-transform group-open/all:rotate-180"
-        />
-      </summary>
-      {DOWNLOAD_GROUPS.map((group) => {
-        const files = downloads.filter((download) => download.group === group);
-        if (files.length === 0) return null;
-        return (
-          <div key={group} className="border-t border-line">
-            <p className="hud-label bg-bg-sunken px-4 py-2 text-faint">{group}</p>
-            <ul>
-              {files.map((download) => (
-                <li key={download.href} className="border-t border-line">
-                  <a
-                    href={download.href}
-                    className="group/file flex items-center justify-between gap-4 px-4 py-3 hover:bg-bg-sunken"
-                  >
-                    <span className="min-w-0">
-                      <span className="block text-sm text-ink">{download.label}</span>
-                      <span className="block text-sm text-muted">{download.description}</span>
-                      <span className="mt-1 block truncate font-mono text-[11px] text-faint">
-                        {download.fileName}
-                      </span>
-                    </span>
-                    <ArrowDownToLineIcon
-                      aria-hidden
-                      className="h-4 w-4 shrink-0 text-muted group-hover/file:text-ink"
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
-    </details>
-  );
-}
-
 function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a
@@ -281,6 +239,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
   );
 }
 
+// The other apps, compact, linking back to the hub.
 export function AppFamily({ app, index }: { app: CraftApp; index: string }) {
   const siblings = CRAFTING_APPS.filter((other) => other.slug !== app.slug);
   return (

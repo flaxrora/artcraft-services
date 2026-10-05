@@ -5,7 +5,10 @@ import {
   AppGallery,
   AppGetIt,
 } from "@/components/apps/app-sections";
-import { AppHeroDownloadButton } from "@/components/apps/app-downloads";
+import {
+  AppHeroDownloadButton,
+  AppHeroOtherDownloadsLink,
+} from "@/components/apps/app-downloads";
 import {
   AppIcon,
   AppTab,
@@ -168,6 +171,7 @@ export default async function CraftAppPage({ params }: { params: Params }) {
               View on GitHub
             </Button>
           </div>
+          {release && <AppHeroOtherDownloadsLink />}
           <p className="hud-label text-faint">
             {app.platforms.join(" · ")} · Free and open source
           </p>
