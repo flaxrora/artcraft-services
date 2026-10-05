@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui";
 import {
   craftAppName,
   craftAppPath,
+  craftAppRelease,
   craftShotUrl,
   type CraftApp,
 } from "@/lib/crafting-apps";
@@ -24,6 +25,7 @@ export default function AppCard({
   compact?: boolean;
 }) {
   const [hero] = app.shots;
+  const release = craftAppRelease(app);
   return (
     <Link
       href={craftAppPath(app)}
@@ -66,7 +68,9 @@ export default function AppCard({
         {!compact && (
           <div className="mt-6 flex flex-wrap gap-1.5">
             <Badge label={app.status} className="text-(--app-ink)" />
-            {app.release && <Badge label="Installers ready" className="text-(--app-ink)" />}
+            {release && (
+              <Badge label="Installers ready" className="text-(--app-ink)" />
+            )}
             {app.platforms.map((platform) => (
               <Badge key={platform} label={platform} />
             ))}

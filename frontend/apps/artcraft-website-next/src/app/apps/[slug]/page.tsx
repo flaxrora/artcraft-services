@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowDownToLineIcon } from "lucide-react";
 import {
   AppFamily,
   AppGallery,
   AppGetIt,
 } from "@/components/apps/app-sections";
+import { AppHeroDownloadButton } from "@/components/apps/app-downloads";
 import {
   AppIcon,
   AppTab,
@@ -27,7 +27,9 @@ import {
   craftAppOgImage,
   craftAppPath,
   craftAppIconUrl,
+  craftAppRelease,
   craftAppRepo,
+  craftReleaseDownloads,
   craftReleasePageUrl,
   craftShotUrl,
   getCraftApp,
@@ -73,6 +75,7 @@ export default async function CraftAppPage({ params }: { params: Params }) {
   if (!app) notFound();
 
   const name = craftAppName(app);
+  const release = craftAppRelease(app);
   const [hero] = app.shots;
   const [before, accent, after] = app.headline;
   const shareUrl = siteUrl(craftAppPath(app));
@@ -88,9 +91,9 @@ export default async function CraftAppPage({ params }: { params: Params }) {
     thumbnailUrl: siteUrl(craftAppIconUrl(app)),
     screenshot: app.shots.map((shot) => siteUrl(craftShotUrl(app, shot))),
     sameAs: craftAppRepo(app),
-    ...(app.release && {
-      softwareVersion: app.release.version,
-      downloadUrl: craftReleasePageUrl(app, app.release),
+    ...(release && {
+      softwareVersion: release.version,
+      downloadUrl: craftReleasePageUrl(app, release),
     }),
     isAccessibleForFree: true,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -140,15 +143,17 @@ export default async function CraftAppPage({ params }: { params: Params }) {
       >
         <div className="flex flex-col items-center gap-6">
           <div className="flex flex-wrap justify-center gap-3">
-            {app.release && (
-              <Button href="#get-it" size="lg">
-                <ArrowDownToLineIcon aria-hidden className="h-4 w-4" />
-                Download {name}
-              </Button>
+            {release && (
+              <AppHeroDownloadButton
+                name={name}
+                recommended={craftReleaseDownloads(app, release).filter(
+                  (download) => download.recommended,
+                )}
+              />
             )}
             <DiscordButton
               size="lg"
-              variant={app.release ? "secondary" : "primary"}
+              variant={release ? "secondary" : "primary"}
             >
               Join the Discord
             </DiscordButton>

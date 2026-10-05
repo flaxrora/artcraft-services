@@ -1,4 +1,9 @@
 import type { Tip } from "./campaign-data";
+import {
+  CRAFT_APP_RELEASES,
+  type CraftRelease,
+  type CraftReleaseAsset,
+} from "./crafting-app-releases";
 import { mediaUrl } from "./links";
 
 // The Crafting Apps family: open-source native apps from the ArtCraft team,
@@ -9,8 +14,8 @@ import { mediaUrl } from "./links";
 // Facts (counts, timings, formats) come from each repo's README — keep them
 // in sync when the READMEs change.
 //
-// Apps without a published GitHub release show a Discord waitlist. When one
-// ships, give it `release` and its page offers the installers instead.
+// Download versions and files live in crafting-app-releases.ts. Apps whose
+// release there is null show a Discord waitlist instead of installers.
 //
 // Assets live in public/images/apps/<slug>/: icon.webp (the repo's 512 px
 // hicolor render at 256 px), og.jpg (1200×630 share card) and the shots.
@@ -37,13 +42,6 @@ export type CraftShot = {
   portrait?: boolean;
 };
 
-export type CraftRelease = {
-  /** Tag without the leading "v", e.g. "0.1.1-rc.4". */
-  version: string;
-  /** Asset names are `<slug>-<version>-<suffix>`. */
-  files: { platform: Exclude<CraftPlatform, "Web">; suffix: string }[];
-};
-
 export type CraftApp = {
   slug: CraftAppSlug;
   /** Prefix before "Craft" — the wordmark colors "Craft". */
@@ -62,7 +60,12 @@ export type CraftApp = {
   features: Tip[];
   /** First shot is the hero. */
   shots: [CraftShot, ...CraftShot[]];
-  release?: CraftRelease;
+};
+
+/** One release file, resolved to a URL for a specific app. */
+export type CraftDownload = Omit<CraftReleaseAsset, "file"> & {
+  fileName: string;
+  href: string;
 };
 
 export const CRAFTING_APPS_GITHUB_ORG = "https://github.com/storytold";
@@ -79,14 +82,6 @@ export const CRAFTING_APPS: CraftApp[] = [
     schemaCategory: "DesignApplication",
     platforms: ["macOS", "Windows", "Linux", "Web"],
     rustVersion: "1.90",
-    release: {
-      version: "0.1.1-rc.4",
-      files: [
-        { platform: "macOS", suffix: "macos-universal.dmg" },
-        { platform: "Windows", suffix: "windows-x64.msi" },
-        { platform: "Linux", suffix: "linux-x86_64.AppImage" },
-      ],
-    },
     features: [
       {
         title: "Familiar by design",
@@ -630,19 +625,34 @@ export function craftAppIconSourceUrl(app: CraftApp): string {
   return `https://raw.githubusercontent.com/storytold/${app.slug}/main/assets/app-icon/${app.slug}-1024.png`;
 }
 
-export function craftReleasePageUrl(app: CraftApp, release: CraftRelease): string {
-  return `${craftAppRepo(app)}/releases/tag/v${release.version}`;
+export function craftAppRelease(app: CraftApp): CraftRelease | null {
+  return CRAFT_APP_RELEASES[app.slug];
 }
 
+export function craftReleaseTag(release: CraftRelease): string {
+  return release.tag ?? `v${release.version}`;
+}
+
+export function craftReleasePageUrl(app: CraftApp, release: CraftRelease): string {
+  return `${craftAppRepo(app)}/releases/tag/${craftReleaseTag(release)}`;
+}
+
+export function craftReleasesUrl(app: CraftApp): string {
+  return `${craftAppRepo(app)}/releases`;
+}
+
+/** Every file in the release, in catalog order. */
 export function craftReleaseDownloads(
   app: CraftApp,
   release: CraftRelease,
-): { platform: string; href: string }[] {
-  const base = `${craftAppRepo(app)}/releases/download/v${release.version}`;
-  return release.files.map(({ platform, suffix }) => ({
-    platform,
-    href: `${base}/${app.slug}-${release.version}-${suffix}`,
-  }));
+): CraftDownload[] {
+  const base = `${craftAppRepo(app)}/releases/download/${craftReleaseTag(release)}`;
+  return release.assets.map(({ file, ...asset }) => {
+    const fileName = file
+      .replaceAll("{slug}", app.slug)
+      .replaceAll("{version}", release.version);
+    return { ...asset, fileName, href: `${base}/${fileName}` };
+  });
 }
 
 export function craftAppOgImage(app: CraftApp): string {
