@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { Badge, Button, TabSelector } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import {
   getPortalUrl,
   subscriptionCheckout,
@@ -85,9 +86,26 @@ export default function PricingTable({
     if (plan.slug === activePlanSlug) return;
     setProcessingPlan(plan.slug);
     setError(null);
+    const checkoutType = !user ? "signup" : hasActivePlan ? "switch" : "subscribe";
+    const price = cadence === "yearly" ? plan.yearlyPrice : plan.monthlyPrice;
+    trackEvent("begin_checkout", {
+      currency: "USD",
+      value: price,
+      checkout_type: checkoutType,
+      items: [
+        {
+          item_id: plan.slug,
+          item_name: plan.name,
+          item_category: "subscription",
+          item_variant: cadence,
+          price,
+          quantity: 1,
+        },
+      ],
+    });
     const body = { plan: plan.slug, cadence };
     const redirected = redirect(
-      !user
+      checkoutType === "signup"
         ? await userSignupSubscriptionCheckout({
             ...body,
             maybeReferralUrl: getReferrer(),
@@ -95,7 +113,7 @@ export default function PricingTable({
             maybeReferralUsername: getReferralUsername(),
             maybeReferralCode: getReferralCode(),
           })
-        : hasActivePlan
+        : checkoutType === "switch"
           ? await switchPlan(body)
           : await subscriptionCheckout(body),
     );
@@ -103,6 +121,7 @@ export default function PricingTable({
   };
 
   const managePlan = async () => {
+    trackEvent("manage_subscription", {});
     setManaging(true);
     setError(null);
     if (!redirect(await getPortalUrl())) setManaging(false);
@@ -115,7 +134,11 @@ export default function PricingTable({
           <TabSelector
             tabs={BILLING_TABS}
             activeTab={cadence}
-            onTabChange={(id) => setCadence(id as BillingCadence)}
+            onTabChange={(id) => {
+              if (id === cadence) return;
+              setCadence(id as BillingCadence);
+              trackEvent("billing_cadence_change", { cadence: id });
+            }}
             tabClassName="w-24"
           />
           <Badge
@@ -363,6 +386,7 @@ function ContactButtons({ className }: { className?: string }) {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       setCopied(true);
+      trackEvent("contact_click", { method: "copy_email" });
       setTimeout(() => setCopied(false), 1500);
     } catch {
       // Clipboard unavailable (insecure context) — the mailto still works.

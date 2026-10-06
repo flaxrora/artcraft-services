@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { CheckIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Button, Input, Modal } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { login, signup } from "@/lib/api";
 import {
   getLandingUrl,
@@ -118,8 +119,9 @@ function SignupForm({
       maybeReferralCode: getReferralCode(),
     });
     setLoading(false);
-    if (result.success) onSuccess();
-    else setError(result.errorMessage || "Failed to create account");
+    if (!result.success) return setError(result.errorMessage || "Failed to create account");
+    trackEvent("sign_up", { method: "email", signup_source: signupSource });
+    onSuccess();
   };
 
   return (
@@ -162,8 +164,9 @@ function LoginForm({ onSuccess }: { onSuccess: () => void }) {
     setLoading(true);
     const result = await login({ usernameOrEmail, password });
     setLoading(false);
-    if (result.success) onSuccess();
-    else setError(result.errorMessage || "Invalid credentials");
+    if (!result.success) return setError(result.errorMessage || "Invalid credentials");
+    trackEvent("login", { method: "email" });
+    onSuccess();
   };
 
   return (

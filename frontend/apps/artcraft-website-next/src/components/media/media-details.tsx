@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowDownToLineIcon, CheckIcon, CopyIcon, ExternalLinkIcon } from "lucide-react";
 import { Button } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { MEDIA_LABELS, corsMediaUrl, mediaDetailLabel, mediaFormat, mediaKind, mediaThumbnail, safeMediaUrl, type MediaDimensions, type MediaPrompt, type SharedMedia } from "@/lib/media";
 import { getModelDisplayName, getModelIcon, getProviderDisplayName, getProviderIcon } from "@/lib/model-names";
 
@@ -35,6 +36,7 @@ export default function MediaDetails({ media, prompt, promptLoading, dimensions 
   }
 
   async function download() {
+    trackEvent("media_download", { media_type: kind, file_extension: mediaFormat(media) });
     setDownloading(true);
     setMessage("");
     const controller = new AbortController();
@@ -102,7 +104,10 @@ export default function MediaDetails({ media, prompt, promptLoading, dimensions 
             <h2 className="hud-label text-faint">Prompt</h2>
             {prompt?.maybe_positive_prompt && (
               <button type="button" className="text-muted hover:text-ink" aria-label={copied === "prompt" ? "Prompt copied" : "Copy prompt"}
-                onClick={() => copy(prompt.maybe_positive_prompt!, "prompt")}>
+                onClick={() => {
+                  copy(prompt.maybe_positive_prompt!, "prompt");
+                  trackEvent("copy_prompt", { media_type: kind });
+                }}>
                 {copied === "prompt" ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
               </button>
             )}
@@ -143,7 +148,10 @@ export default function MediaDetails({ media, prompt, promptLoading, dimensions 
         <Button onClick={download} loading={downloading} className="w-full">
           <ArrowDownToLineIcon aria-hidden className="h-4 w-4" />{downloading ? "Downloading" : "Download file"}
         </Button>
-        <Button variant="secondary" className="w-full" onClick={() => copy(`${SHARE_URL_BASE}${encodeURIComponent(media.token)}`, "link")}>
+        <Button variant="secondary" className="w-full" onClick={() => {
+          copy(`${SHARE_URL_BASE}${encodeURIComponent(media.token)}`, "link");
+          trackEvent("share", { method: "copy_link", content_type: kind, item_id: media.token });
+        }}>
           {copied === "link" ? <CheckIcon aria-hidden className="h-4 w-4" /> : <CopyIcon aria-hidden className="h-4 w-4" />}
           {copied === "link" ? "Link copied" : "Copy share link"}
         </Button>

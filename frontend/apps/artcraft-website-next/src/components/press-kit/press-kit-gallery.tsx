@@ -11,6 +11,7 @@ import {
 import { twMerge } from "tailwind-merge";
 import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
 import { Button, Modal } from "@/components/ui";
+import { trackAttrs } from "@/lib/analytics";
 import { mediaUrl } from "@/lib/links";
 import {
   PRESS_KIT_CATEGORIES,
@@ -148,6 +149,10 @@ function AssetCard({
           onClick={onPlay}
           aria-label={`Play ${asset.title}`}
           className="group relative aspect-video w-full overflow-hidden bg-bg-sunken"
+          {...trackAttrs("video_start", {
+            video_provider: asset.type === "embed" ? "youtube" : "self_hosted",
+            video_title: asset.title,
+          })}
         >
           {thumbnail}
         </button>
@@ -175,6 +180,7 @@ function AssetCard({
               rel="noopener noreferrer"
               variant="secondary"
               className="w-full"
+              {...trackAttrs("press_kit_download", { asset_name: asset.title })}
             >
               <ArrowDownToLineIcon aria-hidden className="h-3.5 w-3.5" />
               {asset.downloadLabel ?? "Download"}

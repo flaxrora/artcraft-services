@@ -1,5 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import { Button, CopyButton } from "@/components/ui";
+import { trackAttrs } from "@/lib/analytics";
 
 // Share strip: copy-link plus intent links for the networks our audience
 // posts to. Hairline cells (gap-px over the line color) so it wraps cleanly
@@ -40,6 +41,7 @@ export default function ShareBar({
   text: string;
   className?: string;
 }) {
+  const shareParams = { content_type: "page", item_id: new URL(url).pathname };
   return (
     <div
       className={twMerge(
@@ -56,6 +58,7 @@ export default function ShareBar({
         copiedLabel="Link copied"
         variant="ghost"
         className={CELL_CLASSES}
+        {...trackAttrs("share", { method: "copy_link", ...shareParams })}
       />
       {TARGETS.map((target) => (
         <Button
@@ -66,6 +69,7 @@ export default function ShareBar({
           aria-label={`Share on ${target.name}`}
           variant="ghost"
           className={CELL_CLASSES}
+          {...trackAttrs("share", { method: target.name.toLowerCase(), ...shareParams })}
         >
           {target.name}
         </Button>

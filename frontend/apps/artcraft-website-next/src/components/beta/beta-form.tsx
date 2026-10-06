@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { CheckIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { Button, Input, Label } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { webappUrl } from "@/lib/links";
 
 // Submissions go to a Google Form whose responses land in a Google Sheet.
@@ -83,6 +84,7 @@ export default function BetaForm() {
       // Google Forms sends no CORS headers, so this is fire-and-forget: the
       // response is opaque and "request completed" counts as success.
       await fetch(FORM_RESPONSE_URL, { method: "POST", mode: "no-cors", body });
+      trackEvent("generate_lead", { form_name: "beta", user_type: userType ?? "" });
       setSubmitted(true);
     } catch {
       setSubmitError(

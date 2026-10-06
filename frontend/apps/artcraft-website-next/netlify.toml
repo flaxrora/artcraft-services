@@ -4,6 +4,10 @@
 # Manage the build command and publish directory here; leave those UI fields empty.
 # The Next.js runtime handles routing, the /cdn-media proxy rewrite, and the
 # legacy-route redirects declared in next.config.ts. Other media is in public/.
+#
+# Google Analytics: set NEXT_PUBLIC_GA_MEASUREMENT_ID (G-XXXXXXXXXX) in the
+# Netlify UI, scoped to the Production context so deploy previews don't
+# report. It is inlined at build time, so redeploy after changing it.
 
 [build]
 command = "npm run build"

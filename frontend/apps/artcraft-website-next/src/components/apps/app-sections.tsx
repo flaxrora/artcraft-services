@@ -6,6 +6,7 @@ import DiscordButton from "@/components/discord-button";
 import { GitHubIcon } from "@/components/icons";
 import { SectionShell, SectionEyebrow } from "@/components/landing/section-shell";
 import { Badge, Button, CopyButton } from "@/components/ui";
+import { trackAttrs } from "@/lib/analytics";
 import {
   CRAFTING_APPS,
   craftAppBuildCommand,
@@ -203,6 +204,7 @@ export function AppGetIt({ app, index }: { app: CraftApp; index: string }) {
                 value={command}
                 variant="ghost"
                 className="h-9 border-l border-line px-3"
+                {...trackAttrs("copy_command", { app_name: app.slug })}
               />
             </div>
             <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-ink">

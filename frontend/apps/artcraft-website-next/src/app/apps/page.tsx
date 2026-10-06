@@ -22,6 +22,7 @@ import { AppIcon, ColorAccent, appThemeClass } from "@/components/apps/app-wordm
 import { PageHeader } from "@/components/page/page-header";
 import RevealManager from "@/components/reveal-manager";
 import { Button } from "@/components/ui";
+import { trackAttrs } from "@/lib/analytics";
 import {
   CRAFTING_APPS,
   CRAFTING_APPS_COUNT_WORD,
@@ -108,6 +109,7 @@ export default function CraftingAppsPage() {
               key={app.slug}
               href={craftAppPath(app)}
               className={`group flex w-18 flex-col items-center gap-2 sm:w-20 ${appThemeClass(app)}`}
+              {...trackAttrs("app_select", { app_name: app.slug })}
             >
               <AppIcon
                 app={app}

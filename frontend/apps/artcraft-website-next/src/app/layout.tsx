@@ -9,6 +9,7 @@ import SiteNav from "@/components/site-nav";
 import SiteFooter from "@/components/site-footer";
 import IntroConductor from "@/components/intro-conductor";
 import LandingContext from "@/components/landing-context";
+import Analytics from "@/components/analytics";
 import MotionProvider from "@/components/motion-provider";
 import ScrollRuler from "@/components/ruler/scroll-ruler";
 import TunerPanel from "@/components/dev/tuner-panel";
@@ -138,6 +139,7 @@ export default function RootLayout({
         </MotionProvider>
         <TunerPanel />
         <LandingContext />
+        <Analytics />
       </body>
     </html>
   );

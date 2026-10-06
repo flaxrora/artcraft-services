@@ -9,6 +9,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { Button, Select, Switch } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { generateVideo, getVideoJob } from "@/lib/api";
 import { H3, H3_GATE_PERKS, H3_SAMPLE_PROMPTS } from "@/lib/campaign-data";
 import { webappUrl } from "@/lib/links";
@@ -101,6 +102,7 @@ export default function H3PromptBox() {
     setSubmitting(false);
     if (!result.success) {
       patch(id, { status: "failed", error: result.errorMessage });
+      trackEvent("video_generation", { model: H3.modelId, status: "failed" });
       return;
     }
 
@@ -114,12 +116,15 @@ export default function H3PromptBox() {
       if (job.status === "complete") {
         patch(id, { status: "complete", videoUrl: job.videoUrl });
         stops.current.delete(id);
+        trackEvent("video_generation", { model: H3.modelId, status: "complete" });
       } else if (job.status === "failed") {
         patch(id, { status: "failed", error: job.error });
         stops.current.delete(id);
+        trackEvent("video_generation", { model: H3.modelId, status: "failed" });
       } else if (attempts >= POLL_MAX_ATTEMPTS) {
         patch(id, { status: "failed", error: "Generation timed out" });
         stops.current.delete(id);
+        trackEvent("video_generation", { model: H3.modelId, status: "timeout" });
       } else {
         setTimeout(poll, POLL_INTERVAL_MS);
       }
@@ -136,6 +141,14 @@ export default function H3PromptBox() {
       setError(`Prompt exceeds the ${MAX_PROMPT_LENGTH} character limit for this model`);
       return;
     }
+    trackEvent("prompt_submit", {
+      model: H3.modelId,
+      logged_in: loggedIn,
+      aspect_ratio: aspectRatio,
+      resolution,
+      duration_seconds: Number(duration),
+      sound,
+    });
     if (!loggedIn) {
       setGateOpen(true);
       return;

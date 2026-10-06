@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PlayIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { trackAttrs } from "@/lib/analytics";
 import type { ExampleVideo } from "@/lib/campaign-data";
 
 // Click-to-play facades: the mp4s (several MB each) are only requested
@@ -69,6 +70,11 @@ function ExampleCard({
             onClick={() => setActive(true)}
             aria-label={`Play example: ${example.label}`}
             className="group absolute inset-0 h-full w-full"
+            {...trackAttrs("video_start", {
+              video_provider: "self_hosted",
+              video_title: example.label,
+              video_url: example.src,
+            })}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

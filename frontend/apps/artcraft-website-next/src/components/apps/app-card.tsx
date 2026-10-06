@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRightIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { Badge } from "@/components/ui";
+import { trackAttrs } from "@/lib/analytics";
 import {
   craftAppName,
   craftAppPath,
@@ -30,6 +31,7 @@ export default function AppCard({
     <Link
       href={craftAppPath(app)}
       data-reveal
+      {...trackAttrs("app_select", { app_name: app.slug })}
       className={twMerge(
         "group relative flex h-full flex-col bg-bg",
         appThemeClass(app),

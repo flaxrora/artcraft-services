@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CoinsIcon } from "lucide-react";
 import { Button } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { webappUrl } from "@/lib/links";
 import { useAccount } from "@/lib/use-account";
 import CreditsModal from "./credits-modal";
@@ -28,7 +29,10 @@ export default function CreditsCta() {
         <Button
           type="button"
           variant="secondary"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setOpen(true);
+            trackEvent("view_credit_packs", {});
+          }}
           className="mt-6"
         >
           <CoinsIcon aria-hidden className="h-3.5 w-3.5 text-accent-ink" />

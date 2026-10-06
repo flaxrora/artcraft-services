@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PlayIcon } from "lucide-react";
+import { trackAttrs } from "@/lib/analytics";
 
 // Click-to-load YouTube embed: a thumbnail until the visitor asks for the
 // player, so the landing never pays the iframe cost up front.
@@ -32,6 +33,11 @@ export default function LiteYouTube({
       onClick={() => setActivated(true)}
       className="group absolute inset-0 h-full w-full"
       aria-label={`Play video: ${title}`}
+      {...trackAttrs("video_start", {
+        video_provider: "youtube",
+        video_title: title,
+        video_url: `https://www.youtube.com/watch?v=${videoId}`,
+      })}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

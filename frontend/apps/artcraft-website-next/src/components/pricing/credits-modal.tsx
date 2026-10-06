@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CoinsIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { Button, Modal } from "@/components/ui";
+import { trackEvent } from "@/lib/analytics";
 import { creditsPackCheckout } from "@/lib/api";
 
 type CreditPack = {
@@ -35,6 +36,20 @@ export default function CreditsModal({
   const purchase = async (pack: CreditPack) => {
     setPurchasingId(pack.id);
     setError(null);
+    trackEvent("begin_checkout", {
+      currency: "USD",
+      value: pack.priceUsd,
+      checkout_type: "credits",
+      items: [
+        {
+          item_id: pack.id,
+          item_name: `${pack.total.toLocaleString("en-US")} credits`,
+          item_category: "credits",
+          price: pack.priceUsd,
+          quantity: 1,
+        },
+      ],
+    });
     const result = await creditsPackCheckout(pack.id);
     if (result.success) {
       window.location.href = result.data.checkoutUrl;

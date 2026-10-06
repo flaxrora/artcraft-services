@@ -86,6 +86,7 @@ export function Button({
     </>
   );
 
+  // Link buttons carry data-cta so analytics can report them as CTA clicks.
   if (href) {
     const anchorProps =
       rest as unknown as AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -96,6 +97,7 @@ export function Button({
           target={target}
           rel={rel}
           className={classes}
+          data-cta=""
           {...anchorProps}
         >
           {content}
@@ -103,7 +105,7 @@ export function Button({
       );
     }
     return (
-      <Link href={href} className={classes} {...anchorProps}>
+      <Link href={href} className={classes} data-cta="" {...anchorProps}>
         {content}
       </Link>
     );
