@@ -43,6 +43,8 @@ export type CraftRelease = {
   version: string;
   /** Git tag. Defaults to `v<version>`. */
   tag?: string;
+  /** Fills `{slug}` in filenames. Defaults to the app's slug; a release from before a rename keeps the old one. */
+  fileSlug?: string;
   assets: readonly CraftReleaseAsset[];
 };
 
@@ -198,7 +200,8 @@ export const CRAFT_APP_RELEASES: Record<CraftAppSlug, CraftRelease | null> = {
   vectorcraft: craftRelease("0.4.0", WITH_WINDOWS_ARM64),
   filmcraft: LATEST,
   lightcraft: LATEST,
-  printcraft: LATEST,
+  // 0.2.1 shipped before the PrintCraft → PdfCraft rename.
+  pdfcraft: { ...LATEST, fileSlug: "printcraft" },
   effectcraft: craftRelease("0.4.0", WITH_WINDOWS_ARM64),
   designcraft: LATEST,
 };

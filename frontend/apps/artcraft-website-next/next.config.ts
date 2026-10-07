@@ -32,6 +32,18 @@ const nextConfig: NextConfig = {
         destination: "/apps/vectorcraft",
         permanent: true,
       },
+      // PrintCraft was renamed PdfCraft. Old page links and share images
+      // (cached by social sites) follow it.
+      {
+        source: "/apps/printcraft",
+        destination: "/apps/pdfcraft",
+        permanent: true,
+      },
+      {
+        source: "/images/apps/printcraft/:file",
+        destination: "/images/apps/pdfcraft/:file",
+        permanent: true,
+      },
       // Legacy share-link form (`/media?media=<token>`) from the Vite site;
       // the canonical route is /media/<token>. Mirrored in netlify.toml so
       // the edge answers it before the Next runtime.

@@ -25,7 +25,7 @@ export type CraftAppSlug =
   | "vectorcraft"
   | "filmcraft"
   | "lightcraft"
-  | "printcraft"
+  | "pdfcraft"
   | "effectcraft"
   | "designcraft";
 
@@ -334,8 +334,8 @@ export const CRAFTING_APPS: CraftApp[] = [
     ],
   },
   {
-    slug: "printcraft",
-    prefix: "Print",
+    slug: "pdfcraft",
+    prefix: "Pdf",
     category: "PDF workbench",
     status: "Early alpha",
     headline: ["The ", "open-source", " PDF workbench."],
@@ -373,27 +373,27 @@ export const CRAFTING_APPS: CraftApp[] = [
     shots: [
       {
         file: "hero.webp",
-        source: "printcraft-viewer.png",
+        source: "pdfcraft-viewer.png",
         caption: "Viewer with threaded comments",
-        alt: "PrintCraft showing a showcase PDF cover with the tools sidebar and threaded comments",
+        alt: "PdfCraft showing a showcase PDF cover with the All tools panel and threaded comments",
       },
       {
         file: "organize.webp",
-        source: "printcraft-organize.png",
+        source: "pdfcraft-organize.png",
         caption: "Organize pages like cards",
-        alt: "PrintCraft page organizer with three pages selected for rotate, delete and extract",
+        alt: "PdfCraft page organizer with three pages selected and the page tools in the toolbar above",
       },
       {
         file: "palette.webp",
-        source: "printcraft-palette.png",
+        source: "pdfcraft-palette.png",
         caption: "A command palette for every tool",
-        alt: "PrintCraft command palette filtering page tools by the word page",
+        alt: "PdfCraft command palette searching for page and listing the page tools",
       },
       {
         file: "twoup.webp",
-        source: "printcraft-twoup.png",
+        source: "pdfcraft-twoup.png",
         caption: "Two-up Read mode, dark theme",
-        alt: "PrintCraft two-up Read mode in the dark theme showing typeset specimen pages",
+        alt: "PdfCraft two-up Read mode in the dark theme showing typeset specimen pages",
       },
     ],
   },
@@ -655,7 +655,7 @@ export function craftReleaseDownloads(
   const base = `${craftAppRepo(app)}/releases/download/${craftReleaseTag(release)}`;
   return release.assets.map(({ file, ...asset }) => {
     const fileName = file
-      .replaceAll("{slug}", app.slug)
+      .replaceAll("{slug}", release.fileSlug ?? app.slug)
       .replaceAll("{version}", release.version);
     return { ...asset, fileName, href: `${base}/${fileName}` };
   });
