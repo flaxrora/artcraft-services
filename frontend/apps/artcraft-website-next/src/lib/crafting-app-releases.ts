@@ -171,15 +171,34 @@ export function craftRelease(
   return { version, assets };
 }
 
+// Windows on ARM builds, which only some apps' releases include so far.
+const WITH_WINDOWS_ARM64: readonly CraftReleaseAsset[] = [
+  ...CRAFT_RELEASE_ASSETS,
+  {
+    file: "{slug}-{version}-windows-arm64.msi",
+    group: "Windows",
+    label: "Installer (ARM64)",
+    description: "Windows 11 on ARM laptops.",
+    arch: "aarch64",
+  },
+  {
+    file: "{slug}-{version}-windows-arm64-portable.zip",
+    group: "Windows",
+    label: "Portable (ARM64)",
+    description: "Unzip and run on Windows on ARM.",
+    arch: "aarch64",
+  },
+];
+
 const LATEST = craftRelease(CRAFTING_APPS_LATEST_VERSION);
 
 // Every app must be listed, so a new slug fails the type check until it is.
 export const CRAFT_APP_RELEASES: Record<CraftAppSlug, CraftRelease | null> = {
-  photocraft: craftRelease("0.2.0"),
-  vectorcraft: craftRelease("0.3.1"),
+  photocraft: craftRelease("0.3.0", WITH_WINDOWS_ARM64),
+  vectorcraft: craftRelease("0.4.0", WITH_WINDOWS_ARM64),
   filmcraft: LATEST,
   lightcraft: LATEST,
   printcraft: LATEST,
-  effectcraft: craftRelease("0.3.1"),
+  effectcraft: craftRelease("0.4.0", WITH_WINDOWS_ARM64),
   designcraft: LATEST,
 };

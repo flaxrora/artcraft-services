@@ -32,11 +32,12 @@ import { ColorAccent } from "./app-wordmark";
 const CELL_HEADING_CLASSES =
   "mt-4 font-display text-3xl font-medium leading-[1.05] tracking-[-0.03em] text-ink-strong sm:text-4xl";
 
-// The hero carries shot 01. Window captures lead with a full-width shot,
-// then pair; portrait pages (layout spreads) sit four across.
+// The hero carries shot 01. Window captures pair up, and an odd one out
+// leads at full width; portrait pages (layout spreads) sit four across.
 export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
   const [, ...shots] = app.shots;
   const portrait = shots.every((shot) => shot.portrait);
+  const leadFullWidth = !portrait && shots.length % 2 === 1;
   return (
     <SectionShell id="gallery">
       <SectionEyebrow
@@ -55,7 +56,7 @@ export function AppGallery({ app, index }: { app: CraftApp; index: string }) {
           <figure
             key={shot.file}
             data-reveal
-            className={twMerge("bg-bg", !portrait && i === 0 && "md:col-span-2")}
+            className={twMerge("bg-bg", leadFullWidth && i === 0 && "md:col-span-2")}
           >
             <a
               href={craftShotSourceUrl(app, shot)}
