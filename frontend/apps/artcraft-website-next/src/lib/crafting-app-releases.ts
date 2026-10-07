@@ -12,7 +12,7 @@ import type { CraftAppSlug } from "./crafting-apps";
 //
 // Release tags are `v<version>` and live at github.com/storytold/<slug>.
 
-export const CRAFTING_APPS_LATEST_VERSION = "0.2.0";
+export const CRAFTING_APPS_LATEST_VERSION = "0.2.1";
 
 export type CraftDesktopPlatform = "macOS" | "Windows" | "Linux";
 
@@ -175,11 +175,11 @@ const LATEST = craftRelease(CRAFTING_APPS_LATEST_VERSION);
 
 // Every app must be listed, so a new slug fails the type check until it is.
 export const CRAFT_APP_RELEASES: Record<CraftAppSlug, CraftRelease | null> = {
-  photocraft: LATEST,
-  vectorcraft: LATEST,
+  photocraft: craftRelease("0.2.0"),
+  vectorcraft: craftRelease("0.3.1"),
   filmcraft: LATEST,
   lightcraft: LATEST,
   printcraft: LATEST,
-  effectcraft: LATEST,
+  effectcraft: craftRelease("0.3.1"),
   designcraft: LATEST,
 };
